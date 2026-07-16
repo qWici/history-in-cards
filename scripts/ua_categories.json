@@ -460,7 +460,8 @@
         "Q43718",
         "Q765165",
         "Q17488307",
-        "Q215705"
+        "Q215705",
+        "Q172911"
       ],
       "extra": [
         "FILTER NOT EXISTS { ?item wdt:P106 wd:Q484188 . }"
@@ -479,7 +480,8 @@
       "verb_f": "народилася",
       "min_sitelinks": 10,
       "exclude": [
-        "Q358885"
+        "Q358885",
+        "Q172911"
       ]
     },
     {
@@ -921,7 +923,9 @@
       "require_image": false,
       "extra": [
         "FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q2385804 . }"
-      ]
+      ],
+      "year_from_ukwiki_infobox": true,
+      "infobox_year_pick": "min"
     },
     {
       "slug": "ua-business-food-drink",
@@ -991,7 +995,8 @@
       "limit_candidates": 150,
       "occupations_subclass": true,
       "exclude": [
-        "Q44181"
+        "Q44181",
+        "Q1402369"
       ]
     },
     {

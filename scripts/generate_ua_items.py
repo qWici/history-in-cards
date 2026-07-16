@@ -340,18 +340,21 @@ def pageviews(title, months=None):
 
 _infobox_cache = {}
 _FOUNDED_RE = re.compile(
-    r"\|\s*(?:засноване|засновано|дата заснування)\s*=\s*([^\n]*)", re.I)
+    r"\|\s*(?:заснован[аеоиі][а-яіїє ]*|дата[_ ]заснування)\s*=\s*([^\n]*)", re.I)
 
 
-def infobox_founded_year(title):
-    """Рік з поля «засноване» інфобоксу статті uk-wiki (None якщо не знайшли).
+def infobox_founded_year(title, pick="max"):
+    """Рік з поля «засноване/заснована» інфобоксу uk-wiki (None якщо нема).
 
-    У Wikidata P571 для міст часто «перша згадка» (Одеса = 1500), а гравці
-    очікують офіційне заснування (1794). Беремо всі роки з поля і повертаємо
-    найпізніший: «1415; 1794» -> 1794, «V-VI століття (482 рік)» -> 482.
+    У Wikidata P571 буває не те, що очікують гравці: для міст — «перша
+    згадка» (Одеса = 1500 замість 1794), для компаній — радянський попередник
+    (Укрпошта = 1947 замість 1994). pick: "max" — найпізніший рік з поля
+    (міста: «1415; 1794» -> 1794), "min" — найраніший (компанії: дата
+    заснування зазвичай перша, далі йдуть реорганізації).
     """
-    if title in _infobox_cache:
-        return _infobox_cache[title]
+    key = (title, pick)
+    if key in _infobox_cache:
+        return _infobox_cache[key]
     year = None
     try:
         data = http_get(UKWIKI_API, {
@@ -371,10 +374,10 @@ def infobox_founded_year(title):
                 if re.search(r"до\s*н\.?\s*е", val, re.I):
                     year = -min(years)
                 else:
-                    year = max(years)
+                    year = max(years) if pick == "max" else min(years)
     except (KeyError, IndexError, StopIteration):
         pass
-    _infobox_cache[title] = year
+    _infobox_cache[key] = year
     time.sleep(0.05)
     return year
 
@@ -517,7 +520,8 @@ def run_category(cat, defaults, out_dir):
                                       "reason": "no date"})
             continue
         if cat.get("year_from_ukwiki_infobox"):
-            year = infobox_founded_year(ent["ukwiki"]) or year
+            year = infobox_founded_year(
+                ent["ukwiki"], cat.get("infobox_year_pick", "max")) or year
         if year_range and not (
                 (year_range[0] is None or year >= year_range[0]) and
                 (year_range[1] is None or year < year_range[1])):
