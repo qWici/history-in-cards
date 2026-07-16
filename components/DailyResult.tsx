@@ -4,6 +4,7 @@ import { Button, buttonVariants } from "@heroui/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { readDailyResult, shareText, type DailyResult } from "@/lib/daily";
+import { shareOrCopy } from "@/lib/share";
 
 export function DailyResultView() {
   const [result, setResult] = useState<DailyResult | null>(null);
@@ -17,21 +18,10 @@ export function DailyResultView() {
 
   async function share() {
     if (!result) return;
-    const text = shareText(result);
-    // Системне вікно шеру — тільки на тач-пристроях; на десктопі
-    // (точний курсор) одразу копіюємо в буфер
-    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
-    if (isTouchDevice && navigator.share) {
-      try {
-        await navigator.share({ text });
-        return;
-      } catch {
-        /* користувач скасував — падаємо в копіювання */
-      }
+    if ((await shareOrCopy(shareText(result))) === "copied") {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
     }
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 2000);
   }
 
   const [y, m, d] = result.date.split("-");

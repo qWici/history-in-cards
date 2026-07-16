@@ -21,6 +21,7 @@ import { DailyResultView } from "@/components/DailyResult";
 import type { GameMode } from "@/lib/store";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { formatYear, imageUrl } from "@/lib/game";
+import { shareOrCopy } from "@/lib/share";
 import { LIVES, useGame } from "@/lib/store";
 
 function Lives({ lives }: { lives: number }) {
@@ -185,25 +186,77 @@ function Timeline({ active }: { active: boolean }) {
 }
 
 function GameOver() {
-  const { score, best, timeline, start } = useGame();
+  const { score, best, timeline, start, moves } = useGame();
   const [selected, setSelected] = useState<(typeof timeline)[number] | null>(null);
+  const [copied, setCopied] = useState(false);
   const isRecord = score > 0 && score >= best;
+
+  async function share() {
+    const text = [
+      "Історія в картках 🇺🇦",
+      isRecord
+        ? `Рахунок: ${score} · 🏆 новий рекорд!`
+        : `Рахунок: ${score} (рекорд: ${best})`,
+      moves.map((m) => (m.correct ? "🟩" : "🟥")).join(""),
+      window.location.origin,
+    ].join("\n");
+    if ((await shareOrCopy(text)) === "copied") {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
   return (
     <div className="flex flex-1 flex-col items-center gap-6 p-6">
       <h2 className="text-3xl font-bold">Гру завершено</h2>
-      <div className="flex items-center gap-3">
-        <Chip color="accent" size="lg">
-          Рахунок: {score}
-        </Chip>
-        <Chip color={isRecord ? "success" : "default"} size="lg">
-          {isRecord ? "🏆 Новий рекорд!" : `Рекорд: ${best}`}
-        </Chip>
+      <div className="flex items-center gap-2">
+        <span className="flex items-center gap-2 rounded-full bg-accent-soft px-4 py-1.5 text-accent-soft-foreground shadow-sm">
+          <span className="text-xs font-medium uppercase tracking-wide opacity-80">
+            Рахунок
+          </span>
+          <span className="text-xl font-extrabold tabular-nums sm:text-2xl">
+            {score}
+          </span>
+        </span>
+        <span
+          className={`flex items-center gap-2 rounded-full px-4 py-1.5 shadow-sm ${
+            isRecord
+              ? "bg-success-soft text-success-soft-foreground"
+              : "bg-warning-soft text-warning-soft-foreground"
+          }`}
+        >
+          <span className="text-xs font-medium uppercase tracking-wide opacity-80">
+            🏆 {isRecord ? "Новий рекорд!" : "Рекорд"}
+          </span>
+          {!isRecord && (
+            <span className="text-xl font-extrabold tabular-nums sm:text-2xl">
+              {best}
+            </span>
+          )}
+        </span>
       </div>
-      <div className="flex gap-3">
+      <div className="flex flex-wrap justify-center gap-3">
         <Button variant="primary" onClick={() => start()}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+            <path d="M21 3v6h-6" />
+          </svg>
           Зіграти ще раз
         </Button>
-        <Link href="/" className={buttonVariants({ variant: "secondary" })}>
+        <Button variant="outline" onClick={share}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="6" r="3" />
+            <circle cx="18" cy="18" r="3" />
+            <path d="m8.7 10.7 6.6-3.4m-6.6 6 6.6 3.4" />
+          </svg>
+          {copied ? "Скопійовано ✓" : "Поділитися"}
+        </Button>
+        <Link href="/" className={buttonVariants({ variant: "ghost" })}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+            <path d="M9 22V12h6v10" />
+          </svg>
           На головну
         </Link>
       </div>
