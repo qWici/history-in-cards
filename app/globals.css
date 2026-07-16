@@ -10,6 +10,9 @@
 html,
 body {
   height: 100%;
+  /* Вимикає жест «свайп вліво = назад» на macOS/тачпадах у межах гри:
+     випадковий горизонтальний скрол поза таймлайном не веде на попередню сторінку */
+  overscroll-behavior-x: none;
 }
 
 body {
@@ -67,4 +70,6 @@ body {
 .timeline-scroll {
   scrollbar-width: thin;
   scroll-behavior: smooth;
+  /* Доскролив таймлайн до краю — жест не «протікає» в навігацію браузера */
+  overscroll-behavior-x: contain;
 }
