@@ -28,7 +28,7 @@ function Lives({ lives }: { lives: number }) {
       {Array.from({ length: LIVES }, (_, i) => (
         <span
           key={i}
-          className={`text-2xl transition-all sm:text-3xl ${
+          className={`text-2xl transition-all sm:text-3xl short:text-xl! ${
             i < lives ? "" : "opacity-25 grayscale"
           }`}
         >
@@ -121,7 +121,7 @@ function DropSlot({ index, active }: { index: number; active: boolean }) {
       type="button"
       aria-label={`Покласти картку в позицію ${index + 1}`}
       onClick={() => place(index)}
-      className={`mx-1.5 h-56 shrink-0 self-center rounded-lg border-2 border-dashed transition-all sm:mx-2 sm:h-60 short:h-52! ${
+      className={`mx-1.5 h-56 shrink-0 self-center rounded-lg border-2 border-dashed transition-all sm:mx-2 sm:h-60 short:h-48! ${
         isOver
           ? "w-24 border-accent bg-accent-soft"
           : active
@@ -346,8 +346,8 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
           }}
         >
           {/* Все по центру: картка, підказка і одразу під ними — лінія часу */}
-          <main className="flex flex-1 flex-col items-center justify-center gap-3 pb-6">
-            <div className="mb-1 flex -translate-y-[150px] flex-col items-center gap-1.5 short:-translate-y-2!">
+          <main className="flex flex-1 flex-col items-center justify-center-safe gap-3 pb-6">
+            <div className="flex flex-col items-center gap-1.5 mb-[clamp(0.5rem,8vh,7rem)]">
               {mode === "daily" ? (
                 <p className="text-lg font-semibold">
                   Картка {Math.min(moves.length + 1, totalToPlace)} з {totalToPlace}
@@ -379,7 +379,7 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
             {current && (
               <>
                 <DraggableCurrent returning={returning} />
-                <p className="px-4 text-center text-xs leading-relaxed text-muted">
+                <p className="px-4 text-center text-xs leading-relaxed text-muted short:hidden">
                   Перетягни картку на лінію часу
                   <br />
                   або натисни на місце між картками
@@ -388,7 +388,7 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
             )}
             <section
               aria-label="Лінія часу"
-              className="mt-[50px] w-full rounded-2xl bg-background-secondary/40 short:mt-4!"
+              className="mt-[50px] w-full rounded-2xl bg-background-secondary/40 short:mt-2!"
             >
               <Timeline active={dragging || !!current} />
             </section>
