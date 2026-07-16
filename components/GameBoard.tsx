@@ -27,13 +27,21 @@ import { LIVES, useGame } from "@/lib/store";
 function Lives({ lives }: { lives: number }) {
   return (
     <div className="flex gap-1.5" aria-label={`Життя: ${lives} з ${LIVES}`}>
-      {Array.from({ length: LIVES }, (_, i) => (
-        <FlagUA
-          key={i}
-          width={30}
-          className={`transition-all ${i < lives ? "" : "opacity-25 grayscale"}`}
-        />
-      ))}
+      {Array.from({ length: LIVES }, (_, i) => {
+        const dead = i >= lives;
+        // перший «мертвий» прапорець — щойно втрачений: програє анімацію;
+        // key від lives перемонтовує вузол, тож анімація стартує щопомилки
+        const dying = i === lives;
+        return (
+          <FlagUA
+            key={dying ? `dying-${lives}` : i}
+            width={30}
+            className={
+              dying ? "flag-lost" : dead ? "opacity-25 grayscale" : ""
+            }
+          />
+        );
+      })}
     </div>
   );
 }
@@ -311,6 +319,22 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
     void start({ mode, slugs: slugsKey ? slugsKey.split(",") : null });
   }, [start, mode, slugsKey]);
 
+  // Екран завершення — з паузою, щоб гравець встиг побачити анімацію
+  // останньої помилки (трясіння картки + згасання прапорця)
+  const lastMove = useGame((s) => s.lastMove);
+  const [overShown, setOverShown] = useState(false);
+  useEffect(() => {
+    if (status !== "over") {
+      setOverShown(false);
+      return;
+    }
+    const t = window.setTimeout(
+      () => setOverShown(true),
+      lastMove?.correct ? 400 : 1100,
+    );
+    return () => window.clearTimeout(t);
+  }, [status, lastMove]);
+
   // Прогріваємо кеш браузера зображеннями найближчих карток колоди
   const deck = useGame((s) => s.deck);
   useEffect(() => {
@@ -376,7 +400,7 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
         </div>
       </header>
 
-      {status === "over" ? (
+      {status === "over" && overShown ? (
         mode === "daily" ? (
           <DailyResultView />
         ) : (
@@ -398,14 +422,8 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
         >
           {/* Все по центру: картка, підказка і одразу під ними — лінія часу */}
           <main className="flex flex-1 flex-col items-center justify-center-safe gap-3 pb-6">
-            <div className="flex flex-col items-center gap-1.5 mb-[clamp(0.5rem,8vh,7rem)]">
-              {mode === "daily" ? (
-                <p className="text-lg font-semibold">
-                  Картка {Math.min(moves.length + 1, totalToPlace)} з {totalToPlace}
-                </p>
-              ) : (
-                <Lives lives={lives} />
-              )}
+            {/* однаковий проміжок: пігулки ↕ прапорці ↕ картка */}
+            <div className="flex flex-col items-center gap-[clamp(0.5rem,3vh,2.5rem)] mb-[clamp(0.5rem,3vh,2.5rem)]">
               <div className="flex items-center gap-2">
                 <span className="flex items-center gap-2 rounded-full bg-accent-soft px-4 py-1.5 text-accent-soft-foreground shadow-sm">
                   <span className="text-xs font-medium uppercase tracking-wide opacity-80">
@@ -426,6 +444,13 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
                   </span>
                 )}
               </div>
+              {mode === "daily" ? (
+                <p className="text-lg font-semibold">
+                  Картка {Math.min(moves.length + 1, totalToPlace)} з {totalToPlace}
+                </p>
+              ) : (
+                <Lives lives={lives} />
+              )}
             </div>
             {current && (
               <>

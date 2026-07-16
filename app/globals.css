@@ -45,6 +45,34 @@ body {
   80% { transform: translateX(4px); }
 }
 
+/* Втрата життя: прапорець збільшується, трясеться і гасне в сірий */
+.flag-lost {
+  animation: flag-lost 0.9s ease forwards;
+}
+@keyframes flag-lost {
+  0% {
+    opacity: 1;
+    filter: none;
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.4) rotate(-10deg);
+  }
+  35% {
+    transform: scale(1.4) rotate(10deg);
+  }
+  50% {
+    opacity: 1;
+    filter: none;
+    transform: scale(1.4) rotate(-7deg);
+  }
+  100% {
+    opacity: 0.25;
+    filter: grayscale(1);
+    transform: scale(1);
+  }
+}
+
 /* 3D-фліп нової картки: сорочка -> лицьова сторона */
 .flip-scene {
   perspective: 1200px;
