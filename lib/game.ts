@@ -41,8 +41,14 @@ function shuffle<T>(arr: T[]): T[] {
  * pageViews; кошик для i-ї картки — min(floor(i / PER_LEVEL), 4),
  * з фолбеком на сусідні, коли кошик спорожнів.
  * Дублікатні qid (та сама персона з різними подіями) в партію не потрапляють.
+ * `seen` — нещодавно бачені картки: відсуваються в хвіст свого кошика,
+ * щоб між партіями спершу приходило свіже.
  */
-export function buildDeck(pool: GameCard[], size = 200): GameCard[] {
+export function buildDeck(
+  pool: GameCard[],
+  size = 200,
+  seen?: Set<string>,
+): GameCard[] {
   const PER_LEVEL = 8;
   const byQid = new Map<string, GameCard[]>();
   for (const c of pool) {
@@ -57,6 +63,14 @@ export function buildDeck(pool: GameCard[], size = 200): GameCard[] {
   const buckets: GameCard[][] = Array.from({ length: 5 }, (_, i) =>
     shuffle(sorted.slice(i * bucketSize, (i + 1) * bucketSize)),
   );
+  if (seen?.size) {
+    // тягнемо з кінця (pop) — бачені кладемо на початок, щоб діставались останніми
+    for (const bucket of buckets) {
+      bucket.sort(
+        (a, b) => (seen.has(a.qid) ? 0 : 1) - (seen.has(b.qid) ? 0 : 1),
+      );
+    }
+  }
 
   const deck: GameCard[] = [];
   for (let i = 0; deck.length < size; i++) {

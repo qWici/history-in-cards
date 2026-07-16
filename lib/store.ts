@@ -4,7 +4,23 @@ import { buildDailyDeck, buildDeck, correctIndex, isValidPlacement, kyivToday } 
 import { saveDailyResult } from "./daily";
 
 const BEST_KEY = "ua-trivia:best";
+const SEEN_KEY = "ua-trivia:seen";
+const SEEN_MAX = 150; // скільки останніх бачених карток пам'ятаємо між партіями
 export const LIVES = 3;
+
+function readSeen(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(SEEN_KEY) ?? "[]") as string[];
+  } catch {
+    return [];
+  }
+}
+
+function markSeen(qids: string[]) {
+  const seen = readSeen().filter((q) => !qids.includes(q));
+  seen.push(...qids);
+  localStorage.setItem(SEEN_KEY, JSON.stringify(seen.slice(-SEEN_MAX)));
+}
 
 export type GameStatus = "idle" | "loading" | "playing" | "over";
 export type GameMode = "classic" | "daily";
@@ -70,8 +86,11 @@ export const useGame = create<GameState>((set, get) => ({
       pool = pool.filter((c) => wanted.has(c.category));
     }
     const deck =
-      mode === "daily" ? buildDailyDeck(pool, kyivToday()) : buildDeck(pool);
+      mode === "daily"
+        ? buildDailyDeck(pool, kyivToday()) // однакова для всіх — без seen
+        : buildDeck(pool, 200, new Set(readSeen()));
     const [first, second, ...rest] = deck;
+    markSeen([first.qid, second.qid]);
     set({
       status: "playing",
       timeline: [{ ...first, correct: true }],
@@ -101,6 +120,7 @@ export const useGame = create<GameState>((set, get) => ({
     const nextScore = correct ? score + 1 : score;
     const nextMoves = [...moves, { qid: current.qid, correct }];
     const over = nextLives <= 0 || deck.length === 0;
+    if (!over) markSeen([deck[0].qid]); // наступна витягнута картка — теж бачена
 
     // Пишемо рекорд одразу, щойно він побитий (а не в кінці гри) —
     // так він переживає і закриту вкладку посеред партії
