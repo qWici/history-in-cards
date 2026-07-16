@@ -18,7 +18,10 @@ export function DailyResultView() {
   async function share() {
     if (!result) return;
     const text = shareText(result);
-    if (navigator.share) {
+    // Системне вікно шеру — тільки на тач-пристроях; на десктопі
+    // (точний курсор) одразу копіюємо в буфер
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+    if (isTouchDevice && navigator.share) {
       try {
         await navigator.share({ text });
         return;

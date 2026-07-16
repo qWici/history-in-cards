@@ -4,6 +4,9 @@
 /* Клас-стратегія dark для власних утиліт (HeroUI перемикається сам по .dark) */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Невисокі екрани (ноутбуки 1366×768 тощо) — компактніша вертикальна розкладка */
+@custom-variant short (@media (max-height: 820px));
+
 html,
 body {
   height: 100%;

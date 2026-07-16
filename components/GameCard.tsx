@@ -19,7 +19,7 @@ function Placeholder() {
 export function CardBack({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`flex h-64 w-44 shrink-0 select-none items-center justify-center overflow-hidden rounded-xl border-2 border-border bg-accent-soft shadow-inner sm:h-72 sm:w-52 ${className}`}
+      className={`flex h-64 w-44 shrink-0 select-none items-center justify-center overflow-hidden rounded-xl border-2 border-border bg-accent-soft shadow-inner sm:h-72 sm:w-52 short:h-60! short:w-44! ${className}`}
     >
       <svg
         width="72"
@@ -53,7 +53,7 @@ export function GameCardView({ card, showYear, correct, className = "" }: Props)
         : "border-red-500/70";
   return (
     <div
-      className={`flex h-64 w-44 shrink-0 select-none flex-col overflow-hidden rounded-xl border-2 shadow-md sm:h-72 sm:w-52 ${ring} ${className}`}
+      className={`flex h-64 w-44 shrink-0 select-none flex-col overflow-hidden rounded-xl border-2 shadow-md sm:h-72 sm:w-52 short:h-60! short:w-44! ${ring} ${className}`}
       style={{
         // пастельний тінт групи поверх фону теми — працює і в dark, і в light
         background: `color-mix(in oklab, var(--color-background-secondary) 80%, ${meta.color} 20%)`,
@@ -62,7 +62,7 @@ export function GameCardView({ card, showYear, correct, className = "" }: Props)
         }),
       }}
     >
-      <div className="h-36 w-full overflow-hidden sm:h-40">
+      <div className="h-36 w-full overflow-hidden sm:h-40 short:h-28!">
         {card.image ? (
           // Спеціально не next/image: Wikimedia CDN сам віддає готові thumbnail'и.
           // object-top: на портретах обличчя зазвичай у верхній частині кадру
