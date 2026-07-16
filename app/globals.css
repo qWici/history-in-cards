@@ -1,0 +1,67 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+/* Клас-стратегія dark для власних утиліт (HeroUI перемикається сам по .dark) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* Плавний політ картки на місце при помилці */
+.card-slide-in {
+  animation: card-slide-in 0.45s ease;
+}
+@keyframes card-slide-in {
+  from {
+    transform: translateY(-14px) scale(0.96);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.card-shake {
+  animation: card-shake 0.4s ease;
+}
+@keyframes card-shake {
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* 3D-фліп нової картки: сорочка -> лицьова сторона */
+.flip-scene {
+  perspective: 1200px;
+}
+.flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+}
+.flip-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+.flip-face {
+  backface-visibility: hidden;
+}
+.flip-front {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+/* Тонкий скролбар таймлайна */
+.timeline-scroll {
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+}
