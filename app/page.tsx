@@ -1,6 +1,7 @@
 import { buttonVariants, Card } from "@heroui/react";
 import Link from "next/link";
 import { BestScore } from "@/components/BestScore";
+import { GithubBlock } from "@/components/GithubBlock";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 const STEPS = [
@@ -15,7 +16,7 @@ export default function Home() {
       <header className="flex items-center justify-end px-4 py-3">
         <ThemeSwitcher />
       </header>
-      <main className="flex flex-1 flex-col items-center justify-center gap-8 px-6 pb-16 text-center">
+      <main className="flex flex-1 flex-col items-center justify-center gap-12 px-6 pb-16 text-center">
         <div className="space-y-3">
           <p className="text-5xl" aria-hidden>
             🇺🇦
@@ -25,7 +26,7 @@ export default function Home() {
           </h1>
           <p className="mx-auto max-w-md text-balance text-muted">
             Постав події, людей і місця України в правильному хронологічному
-            порядку. Дані — з Вікіпедії.
+            порядку
           </p>
         </div>
 
@@ -66,18 +67,44 @@ export default function Home() {
           </Card.Content>
         </Card>
       </main>
-      <footer className="px-6 pb-6 text-center text-xs text-muted">
-        Дані: Wikidata та українська Вікіпедія (CC BY-SA). Зображення — Wikimedia
-        Commons. Натхнення —{" "}
-        <a
-          className="underline"
-          href="https://wikitrivia.tomjwatson.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          wikitrivia
-        </a>
-        .
+      <footer className="flex flex-col items-center gap-4 px-6 pb-8">
+        <div className="space-y-1 text-center text-xs text-muted">
+          <p>
+            Дані:{" "}
+            <a
+              className="underline underline-offset-2"
+              href="https://www.wikidata.org"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Wikidata
+            </a>{" "}
+            та{" "}
+            <a
+              className="underline underline-offset-2"
+              href="https://uk.wikipedia.org"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              українська Вікіпедія
+            </a>{" "}
+            (CC BY-SA)
+          </p>
+          <p>Зображення — Wikimedia Commons</p>
+          <p>
+            Натхнення —{" "}
+            <a
+              className="underline underline-offset-2"
+              href="https://wikitrivia.tomjwatson.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              wikitrivia
+            </a>
+            .
+          </p>
+        </div>
+        <GithubBlock />
       </footer>
     </div>
   );
