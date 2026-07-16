@@ -1,6 +1,7 @@
 import { buttonVariants, Card } from "@heroui/react";
 import Link from "next/link";
 import { BestScore } from "@/components/BestScore";
+import { FlagUA } from "@/components/FlagUA";
 import { GithubBlock } from "@/components/GithubBlock";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
@@ -18,9 +19,9 @@ export default function Home() {
       </header>
       <main className="flex flex-1 flex-col items-center justify-center gap-12 px-6 pb-16 text-center">
         <div className="space-y-3">
-          <p className="text-5xl" aria-hidden>
-            🇺🇦
-          </p>
+          <div className="flex justify-center" aria-hidden>
+            <FlagUA width={72} />
+          </div>
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
             Історія в картках
           </h1>

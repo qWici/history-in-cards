@@ -15,6 +15,7 @@ import { Button, buttonVariants, Chip } from "@heroui/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { CardBack, GameCardView } from "@/components/GameCard";
+import { FlagUA } from "@/components/FlagUA";
 import { CardModal } from "@/components/CardModal";
 import { DailyResultView } from "@/components/DailyResult";
 import type { GameMode } from "@/lib/store";
@@ -26,14 +27,11 @@ function Lives({ lives }: { lives: number }) {
   return (
     <div className="flex gap-1.5" aria-label={`Життя: ${lives} з ${LIVES}`}>
       {Array.from({ length: LIVES }, (_, i) => (
-        <span
+        <FlagUA
           key={i}
-          className={`text-2xl transition-all sm:text-3xl short:text-xl! ${
-            i < lives ? "" : "opacity-25 grayscale"
-          }`}
-        >
-          🇺🇦
-        </span>
+          width={30}
+          className={`transition-all ${i < lives ? "" : "opacity-25 grayscale"}`}
+        />
       ))}
     </div>
   );
@@ -356,7 +354,7 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
                 <Lives lives={lives} />
               )}
               <div className="flex items-center gap-2">
-                <span className="flex items-baseline gap-2 rounded-full bg-accent-soft px-4 py-1.5 text-accent-soft-foreground shadow-sm">
+                <span className="flex items-center gap-2 rounded-full bg-accent-soft px-4 py-1.5 text-accent-soft-foreground shadow-sm">
                   <span className="text-xs font-medium uppercase tracking-wide opacity-80">
                     Рахунок
                   </span>
@@ -365,7 +363,7 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
                   </span>
                 </span>
                 {mode !== "daily" && (
-                  <span className="flex items-baseline gap-2 rounded-full bg-warning-soft px-4 py-1.5 text-warning-soft-foreground shadow-sm">
+                  <span className="flex items-center gap-2 rounded-full bg-warning-soft px-4 py-1.5 text-warning-soft-foreground shadow-sm">
                     <span className="text-xs font-medium uppercase tracking-wide opacity-80">
                       🏆 Рекорд
                     </span>
