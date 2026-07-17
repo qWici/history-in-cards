@@ -36,6 +36,11 @@ interface Move {
   correct: boolean;
 }
 
+interface LastMove extends Move {
+  title: string;
+  year: number;
+}
+
 interface GameState {
   status: GameStatus;
   mode: GameMode;
@@ -48,10 +53,14 @@ interface GameState {
   moves: Move[];
   /** Скільки карток треба розкласти за партію (для прогресу в daily). */
   totalToPlace: number;
-  lastMove: Move | null;
+  lastMove: LastMove | null;
+  /** QID картки, що після промаху чекає на переїзд у правильне місце. */
+  relocating: string | null;
   start: (config?: StartConfig) => Promise<void>;
   /** Гравець кладе поточну картку в слот index (перед timeline[index]). */
   place: (index: number) => void;
+  /** Фаза 2 промаху: перенести картку на правильну позицію і продовжити гру. */
+  finishRelocation: () => void;
 }
 
 let poolCache: GameCard[] | null = null;
@@ -76,6 +85,7 @@ export const useGame = create<GameState>((set, get) => ({
   moves: [],
   totalToPlace: 0,
   lastMove: null,
+  relocating: null,
 
   start: async (config = {}) => {
     const mode = config.mode ?? "classic";
@@ -102,6 +112,7 @@ export const useGame = create<GameState>((set, get) => ({
       moves: [],
       totalToPlace: deck.length - 1,
       lastMove: null,
+      relocating: null,
       best: Number(localStorage.getItem(BEST_KEY) ?? 0),
     });
   },
@@ -109,17 +120,37 @@ export const useGame = create<GameState>((set, get) => ({
   place: (index) => {
     const { timeline, current, deck, lives, score, best, status, mode, moves } =
       get();
-    if (status !== "playing" || !current) return;
+    if (status !== "playing" || !current || get().relocating) return;
 
     const correct = isValidPlacement(timeline, index, current.year);
-    const insertAt = correct ? index : correctIndex(timeline, current.year);
-    const nextTimeline = [...timeline];
-    nextTimeline.splice(insertAt, 0, { ...current, correct });
+    const lastMove = {
+      qid: current.qid,
+      correct,
+      title: current.title,
+      year: current.year,
+    };
 
-    const nextLives = correct ? lives : lives - 1;
-    const nextScore = correct ? score + 1 : score;
-    const nextMoves = [...moves, { qid: current.qid, correct }];
-    const over = nextLives <= 0 || deck.length === 0;
+    if (!correct) {
+      // Фаза 1 промаху: картка лишається там, куди її поклали, — червона,
+      // з відкритим роком. Переїзд на правильне місце — у finishRelocation()
+      const nextTimeline = [...timeline];
+      nextTimeline.splice(index, 0, { ...current, correct: false });
+      set({
+        timeline: nextTimeline,
+        current: null,
+        lives: lives - 1,
+        moves: [...moves, { qid: current.qid, correct: false }],
+        lastMove,
+        relocating: current.qid,
+      });
+      return;
+    }
+
+    const nextTimeline = [...timeline];
+    nextTimeline.splice(index, 0, { ...current, correct: true });
+    const nextScore = score + 1;
+    const nextMoves = [...moves, { qid: current.qid, correct: true }];
+    const over = deck.length === 0;
     if (!over) markSeen([deck[0].qid]); // наступна витягнута картка — теж бачена
 
     // Пишемо рекорд одразу, щойно він побитий (а не в кінці гри) —
@@ -141,12 +172,41 @@ export const useGame = create<GameState>((set, get) => ({
       timeline: nextTimeline,
       current: over ? null : deck[0],
       deck: over ? deck : deck.slice(1),
-      lives: nextLives,
       score: nextScore,
       best: nextBest,
       moves: nextMoves,
       status: over ? "over" : "playing",
-      lastMove: { qid: current.qid, correct },
+      lastMove,
+    });
+  },
+
+  finishRelocation: () => {
+    const { timeline, relocating, deck, lives, mode, score, moves } = get();
+    if (!relocating) return;
+    const idx = timeline.findIndex((c) => c.qid === relocating && !c.correct);
+    if (idx === -1) return;
+    const card = timeline[idx];
+    const rest = timeline.filter((_, i) => i !== idx);
+    const to = correctIndex(rest, card.year);
+    const nextTimeline = [...rest];
+    nextTimeline.splice(to, 0, card);
+
+    const over = lives <= 0 || deck.length === 0;
+    if (!over) markSeen([deck[0].qid]);
+    if (over && mode === "daily") {
+      saveDailyResult(
+        score,
+        moves.length,
+        moves.map((m) => (m.correct ? "🟩" : "🟥")).join(""),
+      );
+    }
+
+    set({
+      timeline: nextTimeline,
+      relocating: null,
+      current: over ? null : deck[0],
+      deck: over ? deck : deck.slice(1),
+      status: over ? "over" : "playing",
     });
   },
 }));

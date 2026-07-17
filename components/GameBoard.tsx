@@ -111,7 +111,16 @@ function DraggableCurrent({
     };
   }, [current]);
 
-  if (!current) return null;
+  if (!current) {
+    return (
+      <div className="relative">
+        <div className="absolute left-1.5 top-1.5" aria-hidden>
+          <CardBack className="opacity-50" />
+        </div>
+        <CardBack />
+      </div>
+    );
+  }
   // «Колода»: сорочка лежить під карткою ЗАВЖДИ (визирає знизу-праворуч).
   // Поки картку тягнуть чи вона летить назад — верхня картка прозора,
   // і видно колоду. Рух самої картки малює DragOverlay.
@@ -209,7 +218,7 @@ function Timeline({ active }: { active: boolean }) {
     scrollRef.current
       .querySelector(`[data-qid="${lastMove.qid}"]`)
       ?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }, [lastMove, timeline.length]);
+  }, [lastMove, timeline]);
 
   return (
     <div
@@ -384,6 +393,16 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
     void start({ mode, slugs: slugsKey ? slugsKey.split(",") : null });
   }, [start, mode, slugsKey]);
 
+  // Промах: пауза, щоб гравець побачив картку там, де поклав (червона,
+  // з роком), і лише потім вона переїжджає на правильне місце
+  const relocating = useGame((s) => s.relocating);
+  const finishRelocation = useGame((s) => s.finishRelocation);
+  useEffect(() => {
+    if (!relocating) return;
+    const t = window.setTimeout(finishRelocation, 1300);
+    return () => window.clearTimeout(t);
+  }, [relocating, finishRelocation]);
+
   // Екран завершення — з паузою, щоб гравець встиг побачити анімацію
   // останньої помилки (трясіння картки + згасання прапорця)
   const lastMove = useGame((s) => s.lastMove);
@@ -529,7 +548,7 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
                 <Lives lives={lives} />
               )}
             </div>
-            {current && (
+            {(
               <>
                 <div className="relative">
                   <DraggableCurrent
@@ -560,6 +579,11 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
                   або натисни на місце між картками
                 </p>
               </>
+            )}
+            {lastMove && !lastMove.correct && (
+              <div className="rounded-full bg-danger-soft px-5 py-2 text-sm font-semibold text-danger-soft-foreground">
+                Промах! «{lastMove.title}» — {formatYear(lastMove.year)}
+              </div>
             )}
             <section
               aria-label="Лінія часу"
