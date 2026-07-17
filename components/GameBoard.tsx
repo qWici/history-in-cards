@@ -24,6 +24,26 @@ import { formatYear, imageUrl } from "@/lib/game";
 import { shareOrCopy } from "@/lib/share";
 import { LIVES, useGame } from "@/lib/store";
 
+/** Вигнута стрілка вниз — підказує, що картку тягнуть на таймлайн. */
+function ArrowToTimeline() {
+  return (
+    <svg
+      width="34"
+      height="34"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M18 4c-8 1-11 6-11 13" />
+      <path d="M3.5 14 7 17.5 10.5 14" />
+    </svg>
+  );
+}
+
 function Lives({ lives }: { lives: number }) {
   return (
     <div className="flex gap-1.5" aria-label={`Життя: ${lives} з ${LIVES}`}>
@@ -466,14 +486,29 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
             </div>
             {current && (
               <>
-                <DraggableCurrent
-                  returning={returning}
-                  onPreview={() => {
-                    if (Date.now() - lastDragEndAt.current > 350) {
-                      setPreviewOpen(true);
-                    }
-                  }}
-                />
+                <div className="relative">
+                  <DraggableCurrent
+                    returning={returning}
+                    onPreview={() => {
+                      if (Date.now() - lastDragEndAt.current > 350) {
+                        setPreviewOpen(true);
+                      }
+                    }}
+                  />
+                  {/* стрілки-підказки обабіч картки: тягнути вниз, на таймлайн */}
+                  <div
+                    className="absolute -left-16 bottom-0 text-muted"
+                    aria-hidden
+                  >
+                    <ArrowToTimeline />
+                  </div>
+                  <div
+                    className="absolute -right-16 bottom-0 -scale-x-100 text-muted"
+                    aria-hidden
+                  >
+                    <ArrowToTimeline />
+                  </div>
+                </div>
                 <p className="px-4 text-center text-xs leading-relaxed text-muted short:hidden">
                   Перетягни картку на лінію часу
                   <br />
