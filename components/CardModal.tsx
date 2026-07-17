@@ -9,9 +9,16 @@ import { formatYear, imageUrl, wikiUrl } from "@/lib/game";
 interface Props {
   card: GameCard;
   onClose: () => void;
+  /** Режим для ще не розміщеної картки: рік і всі підказки на нього приховані. */
+  hideYear?: boolean;
 }
 
-export function CardModal({ card, onClose }: Props) {
+/** Маскує роки в тексті: «27 червня 1709 року» -> «27 червня ···· року». */
+function maskYears(text: string): string {
+  return text.replace(/\b\d{3,4}\b/g, "····");
+}
+
+export function CardModal({ card, onClose, hideYear = false }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -51,24 +58,38 @@ export function CardModal({ card, onClose }: Props) {
           </p>
           <div className="flex items-start justify-between gap-3">
             <h3 className="text-lg font-bold leading-snug">{card.title}</h3>
-            <span className="shrink-0 rounded-full bg-accent-soft px-3 py-0.5 text-base font-bold tabular-nums text-accent-soft-foreground">
-              {formatYear(card.year)}
+            <span
+              className={`shrink-0 rounded-full px-3 py-0.5 text-base font-bold tabular-nums ${
+                hideYear
+                  ? "bg-background-tertiary text-muted"
+                  : "bg-accent-soft text-accent-soft-foreground"
+              }`}
+            >
+              {hideYear ? "?" : formatYear(card.year)}
             </span>
           </div>
           {(card.fact ?? card.subtitle) && (
             <p className="text-sm leading-relaxed text-muted">
-              {card.fact ?? card.subtitle}
+              {hideYear
+                ? maskYears((card.fact ?? card.subtitle)!)
+                : (card.fact ?? card.subtitle)}
             </p>
           )}
           <div className="flex items-center justify-between gap-3 pt-1">
-            <a
-              href={wikiUrl(card.wikipediaSlug)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonVariants({ variant: "primary", size: "sm" })}
-            >
-              Читати у Вікіпедії ↗
-            </a>
+            {hideYear ? (
+              <p className="text-xs text-muted">
+                Рік і посилання відкриються після розміщення картки
+              </p>
+            ) : (
+              <a
+                href={wikiUrl(card.wikipediaSlug)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={buttonVariants({ variant: "primary", size: "sm" })}
+              >
+                Читати у Вікіпедії ↗
+              </a>
+            )}
             <button
               type="button"
               onClick={onClose}

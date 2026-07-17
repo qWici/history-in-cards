@@ -46,7 +46,13 @@ function Lives({ lives }: { lives: number }) {
   );
 }
 
-function DraggableCurrent({ returning }: { returning: boolean }) {
+function DraggableCurrent({
+  returning,
+  onPreview,
+}: {
+  returning: boolean;
+  onPreview: () => void;
+}) {
   const current = useGame((s) => s.current);
   // Нова картка приходить сорочкою догори; перевертаємо, коли її зображення
   // довантажилось. Зберігаємо QID перевернутої картки (не boolean!): нова
@@ -97,6 +103,7 @@ function DraggableCurrent({ returning }: { returning: boolean }) {
         ref={setNodeRef}
         {...listeners}
         {...attributes}
+        onClick={() => revealed && onPreview()}
         className={`flip-scene relative touch-none ${
           revealed ? "cursor-grab active:cursor-grabbing" : ""
         } ${isDragging || returning ? "opacity-0" : ""}`}
@@ -304,6 +311,10 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
     useGame();
   const [dragging, setDragging] = useState(false);
   const [returning, setReturning] = useState(false);
+  // Прев'ю активної картки (рік прихований); guard відсікає клік,
+  // що прилітає одразу після завершення перетягування
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const lastDragEndAt = useRef(0);
   // «Знімок» картки для DragOverlay: живе до кінця drop-анімації,
   // інакше overlay зникає в момент відпускання і політ назад не грає
   const [dragCard, setDragCard] = useState<typeof current>(null);
@@ -363,6 +374,7 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
 
   function onDragEnd(event: DragEndEvent) {
     setDragging(false);
+    lastDragEndAt.current = Date.now();
     const over = event.over?.id;
     if (typeof over === "string" && over.startsWith("slot-")) {
       droppedOnSlot.current = true;
@@ -454,7 +466,14 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
             </div>
             {current && (
               <>
-                <DraggableCurrent returning={returning} />
+                <DraggableCurrent
+                  returning={returning}
+                  onPreview={() => {
+                    if (Date.now() - lastDragEndAt.current > 350) {
+                      setPreviewOpen(true);
+                    }
+                  }}
+                />
                 <p className="px-4 text-center text-xs leading-relaxed text-muted short:hidden">
                   Перетягни картку на лінію часу
                   <br />
@@ -489,6 +508,13 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
               </p>
             </div>
           </main>
+          {previewOpen && current && (
+            <CardModal
+              card={current}
+              hideYear
+              onClose={() => setPreviewOpen(false)}
+            />
+          )}
           <DragOverlay dropAnimation={dropAnimation}>
             {dragCard ? (
               <GameCardView card={dragCard} showYear={false} className="rotate-2" />
