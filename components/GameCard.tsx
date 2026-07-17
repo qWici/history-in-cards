@@ -61,7 +61,7 @@ export function GameCardView({ card, showYear, correct, className = "" }: Props)
         }),
       }}
     >
-      <div className="h-36 w-full overflow-hidden sm:h-40 short:h-24!">
+      <div className="h-32 w-full overflow-hidden bg-background-tertiary sm:h-40 short:h-24!">
         {card.image ? (
           // Спеціально не next/image: Wikimedia CDN сам віддає готові thumbnail'и.
           // object-top: на портретах обличчя зазвичай у верхній частині кадру
@@ -70,7 +70,7 @@ export function GameCardView({ card, showYear, correct, className = "" }: Props)
             src={imageUrl(card.image)}
             alt=""
             loading="lazy"
-            className="h-full w-full object-cover object-top"
+            className="h-full w-full object-contain"
             draggable={false}
           />
         ) : (
@@ -78,7 +78,7 @@ export function GameCardView({ card, showYear, correct, className = "" }: Props)
         )}
       </div>
       <div className="flex flex-1 flex-col gap-0.5 p-2.5">
-        <p className="line-clamp-2 text-center text-[13px] font-medium leading-snug sm:text-sm">
+        <p className="line-clamp-3 text-center text-[13px] font-medium leading-snug sm:text-sm">
           {card.title}
         </p>
         <p

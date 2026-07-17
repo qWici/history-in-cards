@@ -33,12 +33,12 @@ export function CardModal({ card, onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         {card.image && (
-          <div className="h-[308px] w-full overflow-hidden">
+          <div className="h-[308px] w-full overflow-hidden bg-background-tertiary">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imageUrl(card.image)}
               alt=""
-              className="h-full w-full object-cover object-top"
+              className="h-full w-full object-contain"
             />
           </div>
         )}
