@@ -4,6 +4,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  useDndContext,
   useDraggable,
   useDroppable,
   useSensor,
@@ -148,7 +149,14 @@ function DraggableCurrent({
 
 function DropSlot({ index, active }: { index: number; active: boolean }) {
   const place = useGame((s) => s.place);
+  const timelineLength = useGame((s) => s.timeline.length);
   const { setNodeRef, isOver } = useDroppable({ id: `slot-${index}` });
+  // крайні слоти світяться й тоді, коли картка над сусідньою крайовою зоною
+  const { over } = useDndContext();
+  const edgeOver =
+    (over?.id === "edge-left" && index === 0) ||
+    (over?.id === "edge-right" && index === timelineLength);
+  const highlighted = isOver || edgeOver;
   return (
     <button
       ref={setNodeRef}
@@ -156,12 +164,36 @@ function DropSlot({ index, active }: { index: number; active: boolean }) {
       aria-label={`Покласти картку в позицію ${index + 1}`}
       onClick={() => place(index)}
       className={`mx-1.5 h-56 shrink-0 self-center rounded-lg border-2 border-dashed transition-all sm:mx-2 sm:h-60 short:h-48! ${
-        isOver
+        highlighted
           ? "w-24 border-accent bg-accent-soft"
           : active
             ? "w-12 border-border hover:border-accent hover:bg-accent-soft/40"
             : "w-6 border-transparent hover:border-border"
       }`}
+    />
+  );
+}
+
+/**
+ * Крайова зона таймлайна: весь порожній простір зліва/справа від карток —
+ * велика мішень, що кладе картку на початок або кінець лінії часу.
+ */
+function EdgeZone({ side }: { side: "left" | "right" }) {
+  const place = useGame((s) => s.place);
+  const timelineLength = useGame((s) => s.timeline.length);
+  const { setNodeRef } = useDroppable({ id: `edge-${side}` });
+  const index = side === "left" ? 0 : timelineLength;
+  return (
+    <button
+      ref={setNodeRef}
+      type="button"
+      aria-label={
+        side === "left"
+          ? "Покласти картку на початок лінії часу"
+          : "Покласти картку в кінець лінії часу"
+      }
+      onClick={() => place(index)}
+      className="min-w-3 flex-1 self-stretch"
     />
   );
 }
@@ -184,7 +216,8 @@ function Timeline({ active }: { active: boolean }) {
       ref={scrollRef}
       className="timeline-scroll flex w-full items-stretch overflow-x-auto px-4 py-3"
     >
-      <div className="mx-auto flex items-stretch">
+      <EdgeZone side="left" />
+      <div className="flex items-stretch">
         <DropSlot index={0} active={active} />
         {timeline.map((card, i) => (
           <div key={`${card.qid}-${card.year}`} className="flex items-stretch">
@@ -213,6 +246,7 @@ function Timeline({ active }: { active: boolean }) {
           </div>
         ))}
       </div>
+      <EdgeZone side="right" />
       {selected && (
         <CardModal card={selected} onClose={() => setSelected(null)} />
       )}
@@ -392,13 +426,24 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
     });
   };
 
+  const timelineLength = useGame((s) => s.timeline.length);
+
   function onDragEnd(event: DragEndEvent) {
     setDragging(false);
     lastDragEndAt.current = Date.now();
     const over = event.over?.id;
-    if (typeof over === "string" && over.startsWith("slot-")) {
+    // дроп на слот або на крайову зону (порожній простір обабіч карток)
+    const slotIndex =
+      typeof over === "string" && over.startsWith("slot-")
+        ? Number(over.slice(5))
+        : over === "edge-left"
+          ? 0
+          : over === "edge-right"
+            ? timelineLength
+            : null;
+    if (slotIndex !== null) {
       droppedOnSlot.current = true;
-      place(Number(over.slice(5)));
+      place(slotIndex);
       setDragCard(null); // успіх: картка вже в таймлайні, політ назад не потрібен
     } else {
       setReturning(true); // сорочку видно, доки dropAnimation не завершиться
