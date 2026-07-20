@@ -9,6 +9,7 @@ import {
   useDroppable,
   useSensor,
   useSensors,
+  MeasuringStrategy,
   type DragEndEvent,
   type DropAnimation,
 } from "@dnd-kit/core";
@@ -212,6 +213,46 @@ function Timeline({ active }: { active: boolean }) {
   const lastMove = useGame((s) => s.lastMove);
   const [selected, setSelected] = useState<(typeof timeline)[number] | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { active: dragActive } = useDndContext();
+
+  // Автоскрол при перетягуванні: чим ближче курсор до краю таймлайна,
+  // тим швидше скрол (квадратична крива). Вбудований автоскрол dnd-kit
+  // тут не працює — картка не є нащадком скрол-контейнера.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!dragActive || !el) return;
+    const EDGE = 160; // px від краю, де вмикається скрол
+    const MAX_SPEED = 24; // px за кадр біля самого краю
+    let pointerX: number | null = null;
+    let raf = 0;
+    const onMove = (e: PointerEvent) => {
+      pointerX = e.clientX;
+    };
+    const prevBehavior = el.style.scrollBehavior;
+    el.style.scrollBehavior = "auto"; // smooth ламає покадровий скрол
+    const tick = () => {
+      if (pointerX !== null) {
+        const rect = el.getBoundingClientRect();
+        const fromLeft = pointerX - rect.left;
+        const fromRight = rect.right - pointerX;
+        if (fromLeft < EDGE && fromLeft > -40) {
+          const k = (EDGE - Math.max(fromLeft, 0)) / EDGE;
+          el.scrollLeft -= MAX_SPEED * k * k;
+        } else if (fromRight < EDGE && fromRight > -40) {
+          const k = (EDGE - Math.max(fromRight, 0)) / EDGE;
+          el.scrollLeft += MAX_SPEED * k * k;
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    window.addEventListener("pointermove", onMove);
+    raf = requestAnimationFrame(tick);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      cancelAnimationFrame(raf);
+      el.style.scrollBehavior = prevBehavior;
+    };
+  }, [dragActive]);
 
   useEffect(() => {
     if (!lastMove || !scrollRef.current) return;
@@ -505,6 +546,7 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
       ) : (
         <DndContext
           sensors={sensors}
+          measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
           onDragStart={() => {
             droppedOnSlot.current = false;
             setDragging(true);
