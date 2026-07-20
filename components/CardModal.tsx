@@ -1,7 +1,7 @@
 "use client";
 
 import { buttonVariants } from "@heroui/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { GameCard } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
 import { formatYear, imageUrl, wikiUrl } from "@/lib/game";
@@ -25,7 +25,38 @@ function maskYears(text: string): string {
     .replace(/\b\d{2}(?=-[хи])/g, "····");
 }
 
+const REPORTED_KEY = "ua-trivia:reported";
+
+function readReported(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(REPORTED_KEY) ?? "[]") as string[];
+  } catch {
+    return [];
+  }
+}
+
 export function CardModal({ card, onClose, hideYear = false }: Props) {
+  const [reported, setReported] = useState(false);
+
+  useEffect(() => {
+    setReported(readReported().includes(card.qid));
+  }, [card.qid]);
+
+  function report() {
+    if (reported) return;
+    setReported(true);
+    localStorage.setItem(
+      REPORTED_KEY,
+      JSON.stringify([...readReported(), card.qid].slice(-200)),
+    );
+    fetch("/api/report", {
+      method: "POST",
+      keepalive: true,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ qid: card.qid, title: card.title }),
+    }).catch(() => {});
+  }
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -97,13 +128,47 @@ export function CardModal({ card, onClose, hideYear = false }: Props) {
                 Читати у Вікіпедії ↗
               </a>
             )}
-            <button
-              type="button"
-              onClick={onClose}
-              className={buttonVariants({ variant: "ghost", size: "sm" })}
-            >
-              Закрити
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={report}
+                disabled={reported}
+                title={
+                  reported
+                    ? "Дякуємо! Ми перевіримо цю картку"
+                    : "Повідомити про помилку в картці"
+                }
+                aria-label="Повідомити про помилку в картці"
+                className={`${buttonVariants({ variant: "ghost", size: "sm" })} ${
+                  reported ? "opacity-60" : ""
+                }`}
+              >
+                {reported ? (
+                  "✓"
+                ) : (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M4 21V4c4-2.5 8 2.5 12 0v9c-4 2.5-8-2.5-12 0" />
+                  </svg>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className={buttonVariants({ variant: "ghost", size: "sm" })}
+              >
+                Закрити
+              </button>
+            </div>
           </div>
         </div>
       </div>
