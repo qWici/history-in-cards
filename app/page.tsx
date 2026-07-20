@@ -52,6 +52,12 @@ export default function Home() {
             >
               📅 Щоденний виклик
             </Link>
+            <Link
+              href="/stats"
+              className={buttonVariants({ variant: "secondary" })}
+            >
+              📊 Статистика
+            </Link>
           </div>
         </div>
 

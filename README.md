@@ -111,6 +111,18 @@ scripts/        generate_ua_items.py + ua_categories.json + build-data.mjs
 public/data/    згенеровано build-data (у .gitignore)
 ```
 
+## Публічна статистика (`/stats`)
+
+Кожна завершена партія шле результат у `POST /api/stats` (режим, рахунок,
+правильні/неправильні ходи) → лічильники в Upstash Redis. `GET /api/stats` —
+публічна агрегація (кеш CDN 60с), сторінка `/stats` малює гістограми.
+
+Налаштування: Vercel → Marketplace → **Upstash Redis** (безкоштовний тариф) →
+Connect до проєкту. Env-змінні (`UPSTASH_REDIS_REST_URL/TOKEN` або легасі
+`KV_REST_API_URL/TOKEN`) підтягнуться самі; локально — `vercel env pull`.
+Без ключів усе працює як no-op: гра не ламається, сторінка пише
+«статистика тимчасово недоступна».
+
 ## Ліцензії даних
 
 Тексти фактів — CC BY-SA (Вікіпедія), зображення — Wikimedia Commons (ліцензія

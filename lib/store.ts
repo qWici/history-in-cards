@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { GameCard, PlacedCard } from "./types";
 import { buildDailyDeck, buildDeck, correctIndex, isValidPlacement, kyivToday } from "./game";
 import { saveDailyResult } from "./daily";
+import { reportGameResult } from "./statsClient";
 
 const BEST_KEY = "ua-trivia:best";
 const SEEN_KEY = "ua-trivia:seen";
@@ -56,6 +57,8 @@ interface GameState {
   lastMove: LastMove | null;
   /** QID картки, що після промаху чекає на переїзд у правильне місце. */
   relocating: string | null;
+  /** Гра обмежена категоріями (для статистики: classic vs category). */
+  categoryGame: boolean;
   start: (config?: StartConfig) => Promise<void>;
   /** Гравець кладе поточну картку в слот index (перед timeline[index]). */
   place: (index: number) => void;
@@ -86,10 +89,11 @@ export const useGame = create<GameState>((set, get) => ({
   totalToPlace: 0,
   lastMove: null,
   relocating: null,
+  categoryGame: false,
 
   start: async (config = {}) => {
     const mode = config.mode ?? "classic";
-    set({ status: "loading", mode });
+    set({ status: "loading", mode, categoryGame: !!config.slugs?.length });
     let pool = await loadPool();
     if (config.slugs?.length) {
       const wanted = new Set(config.slugs);
@@ -167,6 +171,14 @@ export const useGame = create<GameState>((set, get) => ({
         nextMoves.map((m) => (m.correct ? "🟩" : "🟥")).join(""),
       );
     }
+    if (over) {
+      reportGameResult(
+        mode === "daily" ? "daily" : get().categoryGame ? "category" : "classic",
+        nextScore,
+        nextMoves.filter((m) => m.correct).length,
+        nextMoves.filter((m) => !m.correct).length,
+      );
+    }
 
     set({
       timeline: nextTimeline,
@@ -198,6 +210,14 @@ export const useGame = create<GameState>((set, get) => ({
         score,
         moves.length,
         moves.map((m) => (m.correct ? "🟩" : "🟥")).join(""),
+      );
+    }
+    if (over) {
+      reportGameResult(
+        mode === "daily" ? "daily" : get().categoryGame ? "category" : "classic",
+        score,
+        moves.filter((m) => m.correct).length,
+        moves.filter((m) => !m.correct).length,
       );
     }
 
