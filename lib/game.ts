@@ -146,8 +146,9 @@ export function buildDailyDeck(pool: GameCard[], date: string): GameCard[] {
   return seededShuffle(top, mulberry32(hashSeed("ua-trivia-" + date))).slice(0, 13);
 }
 
-/** URL зображення з Wikimedia Commons за ім'ям файлу. */
+/** URL зображення: ім'я файлу на Commons або готовий URL (fair-use з uk-wiki). */
 export function imageUrl(image: string, width = 480): string {
+  if (image.startsWith("http")) return image;
   return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(image)}?width=${width}`;
 }
 

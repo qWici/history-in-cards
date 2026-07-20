@@ -49,6 +49,7 @@ const LABELS: Record<string, string> = {
   "ua-entertainment-songs": "Пісня",
   "ua-entertainment-theatre": "Театр",
   "ua-entertainment-tv": "Телеканал",
+  "ua-entertainment-memes": "Мем",
   "ua-architecture-ancient-medieval": "Архітектура",
   "ua-architecture-early-modern": "Архітектура",
   "ua-architecture-modern": "Архітектура",

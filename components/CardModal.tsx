@@ -13,9 +13,16 @@ interface Props {
   hideYear?: boolean;
 }
 
-/** Маскує роки в тексті: «27 червня 1709 року» -> «27 червня ···· року». */
+/**
+ * Маскує підказки на дату в тексті: роки («1709» -> «····»),
+ * століття римськими («XVIII століття» -> «···· століття»)
+ * і десятиліття («90-х роках» -> «····-х роках»).
+ */
 function maskYears(text: string): string {
-  return text.replace(/\b\d{3,4}\b/g, "····");
+  return text
+    .replace(/\b\d{3,4}\b/g, "····")
+    .replace(/\b[IVXХІ]+(?=\s*ст(?:\.|оліт))/g, "····")
+    .replace(/\b\d{2}(?=-[хи])/g, "····");
 }
 
 export function CardModal({ card, onClose, hideYear = false }: Props) {

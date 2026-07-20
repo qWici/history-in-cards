@@ -1160,6 +1160,53 @@
       "title": "{name}",
       "min_pageviews": 500,
       "require_image": false
+    },
+    {
+      "slug": "ua-entertainment-memes",
+      "name": "Українські меми",
+      "type": "seed",
+      "titles": [
+        "Путін — хуйло!",
+        "Русский военный корабль, иди на хуй",
+        "Доброго вечора, ми з України",
+        {
+          "title": "Полтавський палій",
+          "year": 2010
+        },
+        {
+          "title": "Привид Києва",
+          "year": 2022
+        },
+        {
+          "title": "Бавовна (мем)",
+          "year": 2022
+        },
+        {
+          "title": "Патрон (пес)",
+          "year": 2022
+        },
+        {
+          "title": "Кіт Степан",
+          "year": 2021
+        },
+        {
+          "title": "NAFO",
+          "year": 2022
+        },
+        {
+          "title": "Йолка (інтернет-мем)",
+          "year": 2010
+        }
+      ],
+      "date_props": [
+        "P571",
+        "P577",
+        "P580",
+        "P585"
+      ],
+      "title": "{name}",
+      "require_image": false,
+      "min_pageviews": 300
     }
   ],
   "name_overrides": {

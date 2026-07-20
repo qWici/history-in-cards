@@ -170,8 +170,12 @@ def build_query(part, defaults):
 # ------------------------------------------------------------------------- seeds
 
 def resolve_seeds(titles, log):
-    """uk-wiki назви -> QID (з follow redirects; fallback — пошук)."""
+    """uk-wiki назви -> QID (з follow redirects; fallback — пошук).
+
+    Повертає (resolved: qid -> назва статті, by_seed: вихідна назва -> qid).
+    """
     resolved = {}
+    by_seed = {}
     for chunk in _chunks(titles, 50):
         data = http_get(UKWIKI_API, {
             "action": "query", "format": "json", "redirects": 1,
@@ -188,6 +192,7 @@ def resolve_seeds(titles, log):
             if qid:
                 orig = norm.get(page["title"], page["title"])
                 resolved[qid] = page["title"]
+                by_seed[orig] = qid
                 found_titles.add(orig)
                 found_titles.add(page["title"])
         for t in chunk:
@@ -196,10 +201,11 @@ def resolve_seeds(titles, log):
                 if hit:
                     qid, real_title = hit
                     resolved[qid] = real_title
+                    by_seed[t] = qid
                     log.append({"seed": t, "note": "fuzzy -> " + real_title})
                 else:
                     log.append({"seed": t, "note": "NOT FOUND"})
-    return resolved
+    return resolved, by_seed
 
 
 def _search_ukwiki(text):
@@ -382,7 +388,12 @@ def infobox_founded_year(title, pick="max"):
     return year
 
 
-def fact_for(title):
+def _summary(title):
+    """REST summary статті: короткий факт + головне зображення.
+
+    Зображення звідси — фолбек, коли у Wikidata нема P18 (типово для мемів
+    з fair-use ілюстраціями, залитими локально в uk-wiki, а не на Commons).
+    """
     if title in _summary_cache:
         return _summary_cache[title]
     data = http_get(SUMMARY_URL.format(
@@ -392,9 +403,17 @@ def fact_for(title):
         cut = extract[:350]
         dot = cut.rfind(". ")
         extract = cut[:dot + 1] if dot > 80 else cut + "…"
-    _summary_cache[title] = extract
+    result = {
+        "extract": extract,
+        "image": (data or {}).get("thumbnail", {}).get("source"),
+    }
+    _summary_cache[title] = result
     time.sleep(0.05)
-    return extract
+    return result
+
+
+def fact_for(title):
+    return _summary(title)["extract"]
 
 
 # ------------------------------------------------------------------- categories
@@ -402,8 +421,16 @@ def fact_for(title):
 def candidates_from_part(part, defaults, report_log):
     """-> dict qid -> {label, year, links, gender} (з SPARQL або seeds)."""
     if part["type"] == "seed":
-        resolved = resolve_seeds(part["titles"], report_log)
-        return {qid: {"label": None, "year": None, "links": None, "gender": None}
+        entries = [{"title": t} if isinstance(t, str) else dict(t)
+                   for t in part["titles"]]
+        resolved, by_seed = resolve_seeds([e["title"] for e in entries], report_log)
+        years = {}
+        for e in entries:
+            qid = by_seed.get(e["title"])
+            if qid and e.get("year") is not None:
+                years[qid] = int(e["year"])
+        return {qid: {"label": None, "year": years.get(qid),
+                      "links": None, "gender": None}
                 for qid in resolved}
     rows = sparql(build_query(part, defaults))
     out = {}
@@ -565,15 +592,25 @@ def run_category(cat, defaults, out_dir):
                 (year_range[0] is None or year >= year_range[0]) and
                 (year_range[1] is None or year < year_range[1])):
             continue
-        if require_image and not ent["image"]:
+        image = ent["image"] or _summary(ent["ukwiki"])["image"]
+        if require_image and not image:
             report["dropped"].append({"qid": qid, "name": ent["label"],
-                                      "reason": "no image (P18)"})
+                                      "reason": "no image (P18/summary)"})
             continue
         views_total, views_annual = pageviews(ent["ukwiki"], pv_months)
         if views_annual < min_views:
             report["dropped"].append({"qid": qid, "name": ent["label"],
                                       "reason": f"pageviews {views_annual}/рік < {min_views}"})
             continue
+        fact = fact_for(ent["ukwiki"]) or ent["description"]
+        # ручний рік seed-картки не має суперечити рокам, згаданим у факті
+        if info.get("year") is not None and part["type"] == "seed" and fact:
+            fact_years = set(re.findall(r"\b(1[0-9]{3}|20[0-2][0-9])\b", fact))
+            if fact_years and str(year) not in fact_years:
+                report["dropped"].append({
+                    "qid": qid, "name": ent["label"],
+                    "reason": f"WARNING: ручний рік {year}, у факті {sorted(fact_years)} (картку залишено)",
+                })
         raw_name = ent["label"] or info.get("label") or ent["ukwiki"]
         name = NAME_OVERRIDES.get(qid) or shorten_name(strip_years(raw_name))
         gender = info.get("gender") or ent.get("gender")
@@ -582,9 +619,10 @@ def run_category(cat, defaults, out_dir):
             "title": make_title(name, part, gender),
             "subtitle": ent["description"],
             "year": year,
-            "fact": fact_for(ent["ukwiki"]) or ent["description"],
+            "fact": fact,
             "wikipediaSlug": ent["ukwiki"].replace(" ", "_"),
-            "image": ent["image"].replace(" ", "_") if ent["image"] else None,
+            "image": (image if image and image.startswith("http")
+                      else image.replace(" ", "_") if image else None),
             "pageViews": views_total,
         })
 
