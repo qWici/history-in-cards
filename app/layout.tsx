@@ -28,6 +28,11 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
   },
+  other: {
+    // сайт має власну темну тему — просимо розширення Dark Reader не чіпати
+    // сторінку (воно інжектить атрибути в SVG і ламає гідратацію React)
+    "darkreader-lock": "true",
+  },
 };
 
 export const viewport: Viewport = {
