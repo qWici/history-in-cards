@@ -202,7 +202,11 @@
       "position": "Q26943762",
       "title": "{name} — стає великим князем київським",
       "min_sitelinks": 4,
-      "min_pageviews": 1000
+      "min_pageviews": 1000,
+      "exclude": [
+        "Q174044",
+        "Q348689"
+      ]
     },
     {
       "slug": "ua-leaders-hetmans",
@@ -230,7 +234,10 @@
           "min_sitelinks": 5
         }
       ],
-      "min_pageviews": 2000
+      "min_pageviews": 2000,
+      "exclude": [
+        "Q350857"
+      ]
     },
     {
       "slug": "ua-leaders-1917-1921",
@@ -329,7 +336,11 @@
         "Q33391",
         "Q80440",
         "Q208003",
-        "Q43718"
+        "Q43718",
+        "Q2662849",
+        "Q275875",
+        "Q47900",
+        "Q271853"
       ]
     },
     {
@@ -383,7 +394,19 @@
         "Q326499",
         "Q49080",
         "Q765165",
-        "Q17488307"
+        "Q17488307",
+        "Q44496",
+        "Q63666332",
+        "Q17582456",
+        "Q16745486",
+        "Q111433188",
+        "Q532445",
+        "Q207879",
+        "Q462207",
+        "Q1990730",
+        "Q186185",
+        "Q1343925",
+        "Q152672"
       ]
     },
     {
@@ -440,7 +463,14 @@
         "Q242138",
         "Q184656",
         "Q438603",
-        "Q1980296"
+        "Q1980296",
+        "Q314116",
+        "Q270529",
+        "Q312148",
+        "Q111239656",
+        "Q124890",
+        "Q152672",
+        "Q1065213"
       ]
     },
     {
@@ -461,7 +491,9 @@
         "Q765165",
         "Q17488307",
         "Q215705",
-        "Q172911"
+        "Q172911",
+        "Q275106",
+        "Q68537"
       ],
       "extra": [
         "FILTER NOT EXISTS { ?item wdt:P106 wd:Q484188 . }"
@@ -481,7 +513,13 @@
       "min_sitelinks": 10,
       "exclude": [
         "Q358885",
-        "Q172911"
+        "Q172911",
+        "Q2404340",
+        "Q3847343",
+        "Q124890",
+        "Q47900",
+        "Q433150",
+        "Q235955"
       ]
     },
     {
@@ -500,7 +538,14 @@
       ],
       "title": "{name} — написано",
       "min_sitelinks": 3,
-      "min_pageviews": 500
+      "min_pageviews": 500,
+      "exclude": [
+        "Q175628",
+        "Q2354033",
+        "Q11791202",
+        "Q4195595",
+        "Q4373337"
+      ]
     },
     {
       "slug": "ua-entertainment-books",
@@ -519,7 +564,15 @@
       "title": "{name} — опубліковано",
       "min_sitelinks": 4,
       "min_pageviews": 1000,
-      "require_image": false
+      "require_image": false,
+      "exclude": [
+        "Q17195494",
+        "Q199698",
+        "Q6968328",
+        "Q7685521",
+        "Q4186875",
+        "Q1146473"
+      ]
     },
     {
       "slug": "ua-entertainment-films",
@@ -591,7 +644,10 @@
         "Q237081",
         "Q19694388",
         "Q1980296",
-        "Q35918"
+        "Q35918",
+        "Q56310176",
+        "Q4143897",
+        "Q4172926"
       ]
     },
     {
@@ -704,7 +760,8 @@
       "min_sitelinks": 4,
       "min_pageviews": 800,
       "extra": [
-        "FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q2385804 . }"
+        "FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q2385804 . }",
+        "FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q928830 . }"
       ]
     },
     {
@@ -738,7 +795,8 @@
       "min_sitelinks": 4,
       "min_pageviews": 800,
       "extra": [
-        "FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q2385804 . }"
+        "FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q2385804 . }",
+        "FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q928830 . }"
       ]
     },
     {
@@ -772,7 +830,26 @@
       "min_sitelinks": 4,
       "min_pageviews": 800,
       "extra": [
-        "FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q2385804 . }"
+        "FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q2385804 . }",
+        "FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q928830 . }"
+      ],
+      "exclude": [
+        "Q1875185",
+        "Q1926240",
+        "Q2388637",
+        "Q2042690",
+        "Q1846051",
+        "Q1864476",
+        "Q2503994",
+        "Q2720732",
+        "Q1935961",
+        "Q1825824",
+        "Q1851611",
+        "Q2265613",
+        "Q2069203",
+        "Q2635604",
+        "Q2328814",
+        "Q2293785"
       ]
     },
     {
@@ -819,7 +896,9 @@
       ],
       "title": "{name} — засновано",
       "min_sitelinks": 3,
-      "min_pageviews": 1500
+      "min_pageviews": 1500,
+      "year_from_ukwiki_infobox": true,
+      "infobox_year_pick": "min"
     },
     {
       "slug": "ua-engineering-space-aviation",
@@ -925,7 +1004,17 @@
         "FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q2385804 . }"
       ],
       "year_from_ukwiki_infobox": true,
-      "infobox_year_pick": "min"
+      "infobox_year_pick": "min",
+      "exclude": [
+        "Q1143233",
+        "Q195513",
+        "Q195957",
+        "Q592734",
+        "Q937993",
+        "Q851367",
+        "Q215871",
+        "Q2030806"
+      ]
     },
     {
       "slug": "ua-business-food-drink",
@@ -971,7 +1060,8 @@
         ".ua",
         "Нова пошта",
         "ПриватБанк",
-        "Приват24"
+        "Приват24",
+        "Українська Вікіпедія"
       ],
       "date_props": [
         "P571",
@@ -996,7 +1086,8 @@
       "occupations_subclass": true,
       "exclude": [
         "Q44181",
-        "Q1402369"
+        "Q1402369",
+        "Q215425"
       ]
     },
     {
@@ -1092,6 +1183,20 @@
     "Q48767": "Святослав Шевчук (глава УГКЦ)",
     "Q2359396": "Патріарх Мстислав (Скрипник)",
     "Q1967492": "Митрополит Іларіон (Огієнко)",
-    "Q2588930": "Митрополит Іпатій Потій"
+    "Q2588930": "Митрополит Іпатій Потій",
+    "Q1164068": "Харківський політехнічний інститут"
+  },
+  "year_overrides": {
+    "Q1246092": 1900,
+    "ua-people-famous-deaths/Q230073": 1075,
+    "Q4153473": 2005,
+    "Q2447961": 1945,
+    "Q7550": 1085,
+    "Q43070": 1869,
+    "Q71727": 1899,
+    "Q134279": 1795,
+    "Q146453": 1437,
+    "Q156704": 1310,
+    "Q161744": 1863
   }
 }

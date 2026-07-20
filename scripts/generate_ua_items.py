@@ -65,7 +65,7 @@ def http_get(url, params=None, accept="application/json", retries=4):
             if e.code == 404:
                 return None
             last_err = e
-            if e.code in (429, 500, 502, 503):
+            if e.code in (429, 500, 502, 503, 504):
                 time.sleep(3 * (attempt + 1))
                 continue
             raise
@@ -340,7 +340,7 @@ def pageviews(title, months=None):
 
 _infobox_cache = {}
 _FOUNDED_RE = re.compile(
-    r"\|\s*(?:заснован[аеоиі][а-яіїє ]*|дата[_ ]заснування)\s*=\s*([^\n]*)", re.I)
+    r"\|\s*(?:заснован[аеоиі][а-яіїє ]*|(?:дата|рік)[_ ]заснування)\s*=\s*([^\n]*)", re.I)
 
 
 def infobox_founded_year(title, pick="max"):
@@ -426,6 +426,9 @@ def candidates_from_part(part, defaults, report_log):
 # Глобальна мапа перейменувань qid -> назва (з config "name_overrides"):
 # для назв, де рік — підказка або пастка, і безликих імен (церковні діячі)
 NAME_OVERRIDES = {}
+# Точкові виправлення року qid -> рік (з config "year_overrides"):
+# коли і Wikidata, і інфобокс дають не те, що очікує гравець
+YEAR_OVERRIDES = {}
 
 _YEAR_FILM = re.compile(r"\(фільм,\s*\d{4}\)")
 _YEAR_PARENS = re.compile(
@@ -443,6 +446,40 @@ def strip_years(name):
     name = _YEAR_PARENS.sub("", name)
     name = _YEAR_TAIL.sub("", name)
     return name.strip()
+
+
+# «імені <титул?> <Ім'я Прізвище>» -> «ім. <Прізвище>» (без хвостового пробілу)
+_IMENI_RE = re.compile(
+    r"\s+імені\s+((?:[а-яіїєґ'ʼ\-]+\s+)?"
+    r"[А-ЯІЇЄҐ][\w'ʼ\-\.]*(?:\s+[А-ЯІЇЄҐ][\w'ʼ\-\.]*){0,2})")
+# слова-наповнювачі інституційних назв, у порядку викидання
+_FILLER_WORDS = [
+    "національний", "національна", "академічний", "академічна",
+    "державний", "державна", "обласний", "обласна",
+    "муніципальний", "муніципальна", "український", "українська",
+]
+
+
+def shorten_name(name, limit=55):
+    """Скорочує канцелярські назви установ, зберігаючи ідентичність.
+
+    «Львівський національний академічний театр опери та балету
+    імені Соломії Крушельницької» -> «Львівський театр опери та балету
+    ім. Крушельницької». Правила застосовуються лише поки назва довша
+    за limit: спершу «імені X Y» -> «ім. Y», далі по одному викидаються
+    слова-наповнювачі.
+    """
+    if len(name) <= limit:
+        return name
+    name = _IMENI_RE.sub(lambda m: " ім. " + m.group(1).split()[-1], name, count=1)
+    for word in _FILLER_WORDS:
+        if len(name) <= limit:
+            break
+        name = re.sub(r"\b%s\s+" % word, "", name, count=1, flags=re.I)
+    name = re.sub(r"\s{2,}", " ", name).strip()
+    if name and name[0].islower():  # якщо викинули перше слово
+        name = name[0].upper() + name[1:]
+    return name
 
 
 _PATRONYMIC = ("ович", "йович", "ьович", "івна", "ївна", "ич", "іч")
@@ -522,6 +559,8 @@ def run_category(cat, defaults, out_dir):
         if cat.get("year_from_ukwiki_infobox"):
             year = infobox_founded_year(
                 ent["ukwiki"], cat.get("infobox_year_pick", "max")) or year
+        override_key = f"{cat['slug']}/{qid}"
+        year = int(YEAR_OVERRIDES.get(override_key, YEAR_OVERRIDES.get(qid, year)))
         if year_range and not (
                 (year_range[0] is None or year >= year_range[0]) and
                 (year_range[1] is None or year < year_range[1])):
@@ -536,7 +575,7 @@ def run_category(cat, defaults, out_dir):
                                       "reason": f"pageviews {views_annual}/рік < {min_views}"})
             continue
         raw_name = ent["label"] or info.get("label") or ent["ukwiki"]
-        name = NAME_OVERRIDES.get(qid) or strip_years(raw_name)
+        name = NAME_OVERRIDES.get(qid) or shorten_name(strip_years(raw_name))
         gender = info.get("gender") or ent.get("gender")
         cards.append({
             "qid": qid,
@@ -572,6 +611,7 @@ def main():
 
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
     NAME_OVERRIDES.update(config.get("name_overrides", {}))
+    YEAR_OVERRIDES.update(config.get("year_overrides", {}))
     defaults = config["defaults"]
     cats = config["categories"]
 

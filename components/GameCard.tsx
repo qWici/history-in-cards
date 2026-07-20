@@ -78,7 +78,13 @@ export function GameCardView({ card, showYear, correct, className = "" }: Props)
         )}
       </div>
       <div className="flex flex-1 flex-col gap-0.5 p-2.5">
-        <p className="line-clamp-3 text-center text-[13px] font-medium leading-snug sm:text-sm">
+        <p
+          className={`line-clamp-3 text-center font-medium leading-snug ${
+            card.title.length > 65
+              ? "text-[11px] sm:text-xs"
+              : "text-[13px] sm:text-sm"
+          }`}
+        >
           {card.title}
         </p>
         <p

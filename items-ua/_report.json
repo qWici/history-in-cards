@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-16T19:31:53",
-  "total_cards": 1019,
+  "generated_at": "2026-07-20T21:58:39",
+  "total_cards": 1017,
   "categories": [
     {
       "slug": "ua-history-battles",
@@ -2127,6 +2127,10 @@
           "reason": "excluded in config"
         },
         {
+          "qid": "Q172911",
+          "reason": "excluded in config"
+        },
+        {
           "qid": "Q327195",
           "name": "Едгар де Валь",
           "reason": "pageviews 150/рік < 2500"
@@ -2237,6 +2241,11 @@
           "reason": "pageviews 1569/рік < 2500"
         },
         {
+          "qid": "Q255253",
+          "name": "Башкірцева Марія Костянтинівна",
+          "reason": "pageviews 2078/рік < 2500"
+        },
+        {
           "qid": "Q295688",
           "name": "Едвард Ридз-Сміглий",
           "reason": "pageviews 2230/рік < 2500"
@@ -2245,11 +2254,6 @@
           "qid": "Q312908",
           "name": "Бронштейн Давид Іонович",
           "reason": "pageviews 878/рік < 2500"
-        },
-        {
-          "qid": "Q255253",
-          "name": "Башкірцева Марія Костянтинівна",
-          "reason": "pageviews 2078/рік < 2500"
         },
         {
           "qid": "Q128894",
@@ -2267,11 +2271,6 @@
           "reason": "pageviews 633/рік < 2500"
         },
         {
-          "qid": "Q314189",
-          "name": "Шестов Лев Ісаакович",
-          "reason": "pageviews 676/рік < 2500"
-        },
-        {
           "qid": "Q246731",
           "name": "Теодосій Добжанський",
           "reason": "pageviews 1279/рік < 2500"
@@ -2282,19 +2281,24 @@
           "reason": "pageviews 1841/рік < 2500"
         },
         {
+          "qid": "Q314189",
+          "name": "Шестов Лев Ісаакович",
+          "reason": "pageviews 676/рік < 2500"
+        },
+        {
           "qid": "Q463412",
           "name": "Гельфанд Володимир Натанович",
           "reason": "pageviews 440/рік < 2500"
         },
         {
-          "qid": "Q295400",
-          "name": "Кароль Шимановський",
-          "reason": "pageviews 2062/рік < 2500"
-        },
-        {
           "qid": "Q360507",
           "name": "Зощенко Михайло Михайлович",
           "reason": "pageviews 2424/рік < 2500"
+        },
+        {
+          "qid": "Q295400",
+          "name": "Кароль Шимановський",
+          "reason": "pageviews 2062/рік < 2500"
         },
         {
           "qid": "Q57310",
@@ -2322,6 +2326,11 @@
           "reason": "pageviews 162/рік < 2500"
         },
         {
+          "qid": "Q351222",
+          "name": "Адам Загаєвський",
+          "reason": "pageviews 287/рік < 2500"
+        },
+        {
           "qid": "Q315518",
           "name": "Тихонов Микола Олександрович",
           "reason": "pageviews 570/рік < 2500"
@@ -2337,11 +2346,6 @@
           "reason": "pageviews 2251/рік < 2500"
         },
         {
-          "qid": "Q351222",
-          "name": "Адам Загаєвський",
-          "reason": "pageviews 287/рік < 2500"
-        },
-        {
           "qid": "Q161363",
           "name": "Збіґнєв Герберт",
           "reason": "pageviews 957/рік < 2500"
@@ -2352,11 +2356,6 @@
           "reason": "pageviews 1157/рік < 2500"
         },
         {
-          "qid": "Q311317",
-          "name": "Ісаак Стерн",
-          "reason": "pageviews 460/рік < 2500"
-        },
-        {
           "qid": "Q236384",
           "name": "Аліс Міллер",
           "reason": "no image (P18)"
@@ -2365,6 +2364,11 @@
           "qid": "Q254173",
           "name": "Руденко Людмила Володимирівна",
           "reason": "pageviews 1828/рік < 2500"
+        },
+        {
+          "qid": "Q311317",
+          "name": "Ісаак Стерн",
+          "reason": "pageviews 460/рік < 2500"
         },
         {
           "qid": "Q48020",
@@ -3116,6 +3120,30 @@
       "slug": "ua-entertainment-books",
       "seeds_log": [],
       "dropped": [
+        {
+          "qid": "Q17195494",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q199698",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q6968328",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q7685521",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q4186875",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q1146473",
+          "reason": "excluded in config"
+        },
         {
           "qid": "Q498824",
           "name": "Memory Alpha",
@@ -3964,27 +3992,22 @@
           "reason": "pageviews 551/рік < 800"
         },
         {
-          "qid": "Q2035526",
-          "name": "Тахтали Джамі",
-          "reason": "pageviews 150/рік < 800"
-        },
-        {
           "qid": "Q1603677",
           "name": "Собор Олександра Невського",
           "reason": "pageviews 136/рік < 800"
+        },
+        {
+          "qid": "Q2035526",
+          "name": "Тахтали Джамі",
+          "reason": "pageviews 150/рік < 800"
         }
       ],
-      "cards": 32
+      "cards": 29
     },
     {
       "slug": "ua-architecture-modern",
       "seeds_log": [],
       "dropped": [
-        {
-          "qid": "Q180479",
-          "name": "Донбас Арена",
-          "reason": "no image (P18)"
-        },
         {
           "qid": "Q1432871",
           "name": "Міжнародний аеропорт «Сімферополь»",
@@ -4061,11 +4084,6 @@
         {
           "qid": "Q6450965",
           "name": "Київський міжнародний університет",
-          "reason": "no image (P18)"
-        },
-        {
-          "qid": "Q4456097",
-          "name": "Західноукраїнський національний університет",
           "reason": "no image (P18)"
         },
         {
@@ -4363,7 +4381,7 @@
           "reason": "no date"
         }
       ],
-      "cards": 11
+      "cards": 12
     },
     {
       "slug": "ua-sport-athletes",
