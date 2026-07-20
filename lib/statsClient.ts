@@ -5,6 +5,8 @@ export function reportGameResult(
   correct: number,
   wrong: number,
 ) {
+  // дебаг-ігри не забруднюють публічну статистику
+  if (process.env.NEXT_PUBLIC_DEBUG === "true") return;
   try {
     fetch("/api/stats", {
       method: "POST",

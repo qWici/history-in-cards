@@ -22,7 +22,7 @@ import { CardModal } from "@/components/CardModal";
 import { DailyResultView } from "@/components/DailyResult";
 import type { GameMode } from "@/lib/store";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { formatYear, imageUrl } from "@/lib/game";
+import { correctIndex, formatYear, imageUrl, isValidPlacement } from "@/lib/game";
 import { shareOrCopy } from "@/lib/share";
 import { LIVES, useGame } from "@/lib/store";
 
@@ -43,6 +43,63 @@ function ArrowToTimeline() {
       <path d="M18 4c-8 1-11 6-11 13" />
       <path d="M3.5 14 7 17.5 10.5 14" />
     </svg>
+  );
+}
+
+/** Дебаг-панель для розробки: NEXT_PUBLIC_DEBUG=true. У проді відсутня. */
+function DebugPanel() {
+  if (process.env.NEXT_PUBLIC_DEBUG !== "true") return null;
+
+  function autoPlace(n: number, correct: boolean) {
+    for (let i = 0; i < n; i++) {
+      const s = useGame.getState();
+      if (s.status !== "playing" || !s.current || s.relocating) break;
+      let idx = correctIndex(s.timeline, s.current.year);
+      if (!correct) {
+        for (let j = 0; j <= s.timeline.length; j++) {
+          if (!isValidPlacement(s.timeline, j, s.current.year)) {
+            idx = j;
+            break;
+          }
+        }
+      }
+      s.place(idx);
+      // промах: не чекаємо на анімацію переїзду
+      if (useGame.getState().relocating) useGame.getState().finishRelocation();
+    }
+  }
+
+  const btn =
+    "rounded bg-warning-soft px-2 py-1 text-xs font-semibold text-warning-soft-foreground hover:opacity-80";
+  return (
+    <div className="fixed bottom-3 right-3 z-50 flex items-center gap-1.5 rounded-xl border-2 border-dashed border-warning bg-background/90 p-2 shadow-lg">
+      <span className="text-[10px] font-bold uppercase text-warning-soft-foreground">
+        debug
+      </span>
+      <button type="button" className={btn} onClick={() => autoPlace(1, true)}>
+        +1
+      </button>
+      <button type="button" className={btn} onClick={() => autoPlace(10, true)}>
+        +10
+      </button>
+      <button type="button" className={btn} onClick={() => autoPlace(1, false)}>
+        Промах
+      </button>
+      <button type="button" className={btn} onClick={() => autoPlace(3, false)}>
+        Кінець
+      </button>
+      <button
+        type="button"
+        className={btn}
+        onClick={() => {
+          for (const k of ["ua-trivia:best", "ua-trivia:seen", "ua-trivia:daily", "ua-trivia:reported"])
+            localStorage.removeItem(k);
+          location.reload();
+        }}
+      >
+        🧹
+      </button>
+    </div>
   );
 }
 
@@ -520,6 +577,7 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
 
   return (
     <div className="flex min-h-dvh flex-col">
+      <DebugPanel />
       <header className="flex items-center justify-between gap-3 px-4 py-3">
         <Link
           href="/"
