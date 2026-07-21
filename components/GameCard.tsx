@@ -4,7 +4,7 @@ import type { GameCard as GameCardType } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
 import { formatYear, imageUrl } from "@/lib/game";
 
-function Placeholder() {
+export function Placeholder() {
   return (
     <div className="flex h-full w-full items-center justify-center bg-background-tertiary text-muted">
       <svg width="28" height="48" viewBox="0 0 14 24" fill="#ffd500" aria-hidden>

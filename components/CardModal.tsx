@@ -4,6 +4,7 @@ import { buttonVariants } from "@heroui/react";
 import { useEffect, useState } from "react";
 import type { GameCard } from "@/lib/types";
 import { categoryMeta } from "@/lib/categories";
+import { Placeholder } from "@/components/GameCard";
 import { formatYear, imageUrl, wikiUrl } from "@/lib/game";
 
 interface Props {
@@ -74,19 +75,32 @@ export function CardModal({ card, onClose, hideYear = false }: Props) {
       aria-label={card.title}
     >
       <div
-        className="card-slide-in w-full max-w-md overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
+        className="card-slide-in relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {card.image && (
-          <div className="h-[308px] w-full overflow-hidden bg-background-tertiary">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+        <div className="h-[308px] w-full overflow-hidden bg-background-tertiary">
+          {card.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={imageUrl(card.image)}
               alt=""
               className="h-full w-full object-contain"
             />
-          </div>
-        )}
+          ) : (
+            <Placeholder />
+          )}
+        </div>
+        {/* закриття — хрестик у куті */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Закрити"
+          className="absolute right-3 top-3 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
         <div className="space-y-3 p-5">
           <p
             className="text-[11px] font-semibold uppercase tracking-wide"
@@ -128,27 +142,22 @@ export function CardModal({ card, onClose, hideYear = false }: Props) {
                 Читати у Вікіпедії ↗
               </a>
             )}
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={report}
-                disabled={reported}
-                title={
-                  reported
-                    ? "Дякуємо! Ми перевіримо цю картку"
-                    : "Повідомити про помилку в картці"
-                }
-                aria-label="Повідомити про помилку в картці"
-                className={`${buttonVariants({ variant: "ghost", size: "sm" })} ${
-                  reported ? "opacity-60" : ""
-                }`}
-              >
-                {reported ? (
-                  "✓"
-                ) : (
+            <button
+              type="button"
+              onClick={report}
+              disabled={reported}
+              aria-label="Повідомити про помилку в картці"
+              className={`${buttonVariants({ variant: "ghost", size: "sm" })} ${
+                reported ? "opacity-60" : ""
+              }`}
+            >
+              {reported ? (
+                "Дякуємо ✓"
+              ) : (
+                <>
                   <svg
-                    width="16"
-                    height="16"
+                    width="15"
+                    height="15"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -159,16 +168,10 @@ export function CardModal({ card, onClose, hideYear = false }: Props) {
                   >
                     <path d="M4 21V4c4-2.5 8 2.5 12 0v9c-4 2.5-8-2.5-12 0" />
                   </svg>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className={buttonVariants({ variant: "ghost", size: "sm" })}
-              >
-                Закрити
-              </button>
-            </div>
+                  Повідомити про помилку
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>
