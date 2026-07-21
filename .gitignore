@@ -42,3 +42,9 @@ next-env.d.ts
 
 # generated game data
 /public/data/
+
+# wrangler local vars
+.dev.vars*
+
+# wrangler local state
+.wrangler/
