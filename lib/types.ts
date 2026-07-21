@@ -15,6 +15,8 @@ export interface CategoryInfo {
   name: string;
   group: string;
   count: number;
+  /** Обкладинка — зображення найвідомішої картки категорії. */
+  image: string | null;
 }
 
 /** Картка, що вже лежить на таймлайні. */

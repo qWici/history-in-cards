@@ -66,6 +66,17 @@ const LABELS: Record<string, string> = {
   "ua-sport-moments": "Спортивна подія",
 };
 
+/** Емодзі-іконки груп для сторінки категорій. */
+export const GROUP_ICONS: Record<string, string> = {
+  "Історія": "🏛️",
+  "Правителі та політики": "👑",
+  "Люди": "🌟",
+  "Культура та мистецтво": "🎭",
+  "Архітектура та місця": "🏰",
+  "Наука і бізнес": "🚀",
+  "Спорт": "⚽",
+};
+
 export function categoryMeta(slug: string): CategoryMeta {
   const color =
     GROUP_COLORS.find(([prefix]) => slug.startsWith(prefix))?.[1] ?? "#8b8b8b";

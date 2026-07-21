@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-20T22:41:08",
-  "total_cards": 1027,
+  "generated_at": "2026-07-21T11:00:10",
+  "total_cards": 1019,
   "categories": [
     {
       "slug": "ua-history-battles",
@@ -345,7 +345,7 @@
       "seeds_log": [
         {
           "seed": "Надання Томосу про автокефалію Православній церкві України",
-          "note": "fuzzy -> Надання автокефалії православній церкві України"
+          "note": "fuzzy -> Надання Томосу про автокефалію Православної церкви України (монета)"
         }
       ],
       "dropped": [
@@ -370,8 +370,8 @@
           "reason": "no date"
         },
         {
-          "qid": "Q56366802",
-          "name": "Надання автокефалії православній церкві в Україні",
+          "qid": "Q65202949",
+          "name": "Надання Томосу про автокефалію Православної церкви України",
           "reason": "no date"
         }
       ],
@@ -3599,6 +3599,22 @@
       "seeds_log": [],
       "dropped": [
         {
+          "qid": "Q4372938",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q29012159",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q2597650",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q20082567",
+          "reason": "excluded in config"
+        },
+        {
           "qid": "Q846315",
           "name": "Wild Dances",
           "reason": "pageviews 300/рік < 800"
@@ -3679,14 +3695,14 @@
           "reason": "no uk-wiki article"
         },
         {
-          "qid": "Q117462383",
-          "name": "Changes",
-          "reason": "pageviews 244/рік < 800"
-        },
-        {
           "qid": "Q104519081",
           "name": "Grustny dens",
           "reason": "no uk-wiki article"
+        },
+        {
+          "qid": "Q117462383",
+          "name": "Changes",
+          "reason": "pageviews 244/рік < 800"
         },
         {
           "qid": "Q3487203",
@@ -3724,6 +3740,21 @@
           "reason": "no uk-wiki article"
         },
         {
+          "qid": "Q65150084",
+          "name": "Hooked (Artur Pirozhkov song)",
+          "reason": "no uk-wiki article"
+        },
+        {
+          "qid": "Q29982161",
+          "name": "Заманили (пісня)",
+          "reason": "pageviews 177/рік < 800"
+        },
+        {
+          "qid": "Q113995070",
+          "name": "Вільні. Нескорені",
+          "reason": "pageviews 514/рік < 800"
+        },
+        {
           "qid": "Q98846872",
           "name": "Make It Rain Champagne",
           "reason": "pageviews 314/рік < 800"
@@ -3734,19 +3765,24 @@
           "reason": "pageviews 246/рік < 800"
         },
         {
-          "qid": "Q113995070",
-          "name": "Вільні. Нескорені",
-          "reason": "pageviews 514/рік < 800"
+          "qid": "Q4375167",
+          "name": "Поцелуи (пісня)",
+          "reason": "pageviews 128/рік < 800"
         },
         {
-          "qid": "Q65150084",
-          "name": "Hooked (Artur Pirozhkov song)",
-          "reason": "no uk-wiki article"
+          "qid": "Q29013430",
+          "name": "К чёрту любовь",
+          "reason": "pageviews 226/рік < 800"
         },
         {
-          "qid": "Q29982161",
-          "name": "Заманили (пісня)",
-          "reason": "pageviews 177/рік < 800"
+          "qid": "Q16688868",
+          "name": "Rendez-Vous",
+          "reason": "pageviews 307/рік < 800"
+        },
+        {
+          "qid": "Q12173223",
+          "name": "Я так хочу...",
+          "reason": "pageviews 607/рік < 800"
         },
         {
           "qid": "Q108268926",
@@ -3774,32 +3810,12 @@
           "reason": "no uk-wiki article"
         },
         {
-          "qid": "Q29013430",
-          "name": "К чёрту любовь",
-          "reason": "pageviews 226/рік < 800"
-        },
-        {
-          "qid": "Q4375167",
-          "name": "Поцелуи (пісня)",
-          "reason": "pageviews 128/рік < 800"
-        },
-        {
-          "qid": "Q16688868",
-          "name": "Rendez-Vous",
-          "reason": "pageviews 307/рік < 800"
-        },
-        {
-          "qid": "Q12173223",
-          "name": "Я так хочу...",
-          "reason": "pageviews 607/рік < 800"
-        },
-        {
           "qid": "Q4499316",
           "name": "Холодно",
           "reason": "pageviews 445/рік < 800"
         }
       ],
-      "cards": 26
+      "cards": 22
     },
     {
       "slug": "ua-entertainment-theatre",
@@ -3943,6 +3959,22 @@
       "seeds_log": [],
       "dropped": [
         {
+          "qid": "Q12071631",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q15960736",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q12071921",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q2914786",
+          "reason": "excluded in config"
+        },
+        {
           "qid": "Q483164",
           "name": "Міжнародний Слов'янський Канал",
           "reason": "pageviews 492/рік < 800"
@@ -3958,7 +3990,7 @@
           "reason": "no uk-wiki article"
         }
       ],
-      "cards": 45
+      "cards": 41
     },
     {
       "slug": "ua-architecture-ancient-medieval",
@@ -4261,6 +4293,38 @@
       "slug": "ua-business-companies",
       "seeds_log": [],
       "dropped": [
+        {
+          "qid": "Q1143233",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q195513",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q195957",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q592734",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q937993",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q851367",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q215871",
+          "reason": "excluded in config"
+        },
+        {
+          "qid": "Q2030806",
+          "reason": "excluded in config"
+        },
         {
           "qid": "Q795939",
           "name": "ДонбасАеро",

@@ -612,6 +612,10 @@ def run_category(cat, defaults, out_dir):
                     "reason": f"WARNING: ручний рік {year}, у факті {sorted(fact_years)} (картку залишено)",
                 })
         raw_name = ent["label"] or info.get("label") or ent["ukwiki"]
+        # захист від вандалізму label у Wikidata: розмітка-примітки [2] або
+        # аномальна довжина -> надійніша назва статті uk-wiki
+        if re.search(r"\[\d+\]", raw_name) or len(raw_name) > 90:
+            raw_name = ent["ukwiki"]
         name = NAME_OVERRIDES.get(qid) or shorten_name(strip_years(raw_name))
         gender = info.get("gender") or ent.get("gender")
         cards.append({
