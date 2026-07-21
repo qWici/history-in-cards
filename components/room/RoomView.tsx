@@ -279,7 +279,15 @@ function Lobby({
   );
 }
 
-function Podium({ standings, code }: { standings: RoomSnapshot["standings"]; code: string }) {
+function Podium({
+  standings,
+  isHost,
+  onRestart,
+}: {
+  standings: RoomSnapshot["standings"];
+  isHost: boolean;
+  onRestart: () => void;
+}) {
   const medals = ["🥇", "🥈", "🥉"];
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-6 px-4 pb-16">
@@ -318,13 +326,27 @@ function Podium({ standings, code }: { standings: RoomSnapshot["standings"]; cod
           )}
         </>
       )}
-      <div className="flex gap-3">
-        <Link href={`/room/${code}`} className={buttonVariants({ variant: "secondary" })} onClick={() => location.reload()}>
-          До кімнати
-        </Link>
-        <Link href="/" className={buttonVariants({ variant: "primary" })}>
-          На головну
-        </Link>
+      <div className="flex flex-col items-center gap-3">
+        <div className="flex gap-3">
+          {isHost && (
+            <Button variant="primary" onClick={onRestart}>
+              🔁 Зіграти ще раз
+            </Button>
+          )}
+          <Link
+            href="/"
+            className={buttonVariants({
+              variant: isHost ? "secondary" : "primary",
+            })}
+          >
+            На головну
+          </Link>
+        </div>
+        {!isHost && (
+          <p className="text-xs text-muted">
+            Хост може запустити нову гру — тоді всі повернуться в лобі
+          </p>
+        )}
       </div>
     </main>
   );
@@ -442,7 +464,11 @@ export function RoomView({ code }: { code: string }) {
           onRename={(n) => socket.send(JSON.stringify({ type: "rename", nick: n }))}
         />
       ) : snapshot.phase === "finished" ? (
-        <Podium standings={snapshot.standings} code={code.toUpperCase()} />
+        <Podium
+          standings={snapshot.standings}
+          isHost={snapshot.hostId === myId}
+          onRestart={() => socket.send(JSON.stringify({ type: "restart" }))}
+        />
       ) : (
         <BoardProvider value={boardValue}>
           <BoardCore

@@ -47,6 +47,7 @@ export type ClientMessage =
   | { type: "join"; token: string; nick: string }
   | { type: "rename"; nick: string }
   | { type: "start" }
+  | { type: "restart" }
   | { type: "place"; index: number; qid: string };
 
 export type ServerMessage =

@@ -82,6 +82,8 @@ export class Room extends Server<Env> {
         return this.handleRename(conn, msg.nick);
       case "start":
         return void this.handleStart(conn);
+      case "restart":
+        return this.handleRestart(conn);
       case "place":
         return this.handlePlace(conn, msg.index, msg.qid);
     }
@@ -157,6 +159,38 @@ export class Room extends Server<Env> {
     this.current = second;
     this.deck = rest;
     this.startTurn();
+    this.sync();
+  }
+
+  /** Рематч: хост повертає завершену кімнату в лобі з тими ж гравцями. */
+  handleRestart(conn: Connection) {
+    if (this.phase !== "finished") return;
+    if (conn.state !== this.hostId) {
+      return this.error(conn, "Нову гру запускає лише хост");
+    }
+    this.phase = "lobby";
+    this.players = this.players
+      .filter((p) => p.connected)
+      .map((p) => ({
+        ...p,
+        lives: ROOM_LIMITS.lives,
+        correctMoves: 0,
+        eliminatedAt: null,
+      }));
+    if (!this.players.some((p) => p.id === this.hostId)) {
+      this.hostId = this.players[0]?.id ?? null;
+    }
+    this.deck = [];
+    this.timeline = [];
+    this.current = null;
+    this.turnOrder = [];
+    this.turnIdx = 0;
+    this.turnEndsAt = null;
+    this.relocating = null;
+    this.lastMove = null;
+    this.standings = null;
+    this.eliminatedCount = 0;
+    this.clearTurnTimer();
     this.sync();
   }
 
