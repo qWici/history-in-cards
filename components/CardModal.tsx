@@ -146,13 +146,17 @@ export function CardModal({ card, onClose, hideYear = false }: Props) {
               type="button"
               onClick={report}
               disabled={reported}
+              title="Повідомити про помилку в картці"
               aria-label="Повідомити про помилку в картці"
               className={`${buttonVariants({ variant: "ghost", size: "sm" })} ${
                 reported ? "opacity-60" : ""
               }`}
             >
               {reported ? (
-                "Дякуємо ✓"
+                <>
+                  <span className="sm:hidden">✓</span>
+                  <span className="hidden sm:inline">Дякуємо ✓</span>
+                </>
               ) : (
                 <>
                   <svg
@@ -168,7 +172,8 @@ export function CardModal({ card, onClose, hideYear = false }: Props) {
                   >
                     <path d="M4 21V4c4-2.5 8 2.5 12 0v9c-4 2.5-8-2.5-12 0" />
                   </svg>
-                  Повідомити про помилку
+                  {/* на мобільному текст не влазить — лишається іконка */}
+                  <span className="hidden sm:inline">Повідомити про помилку</span>
                 </>
               )}
             </button>
