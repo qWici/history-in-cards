@@ -8,5 +8,12 @@ export function BestScore() {
     setBest(Number(localStorage.getItem("ua-trivia:best") ?? 0));
   }, []);
   if (!best) return null;
-  return <p className="text-sm text-muted">Твій рекорд: {best}</p>;
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full bg-warning-soft px-3.5 py-1 text-sm font-semibold tabular-nums text-warning-soft-foreground"
+      title="Твій рекорд"
+    >
+      🏆 {best}
+    </span>
+  );
 }

@@ -11,7 +11,7 @@ export default function Home() {
       <header className="flex items-center justify-end px-4 py-3">
         <ThemeSwitcher />
       </header>
-      <main className="flex flex-1 flex-col items-center justify-center gap-12 px-6 pb-16 text-center">
+      <main className="flex flex-1 flex-col items-center justify-center gap-12 px-6 pb-32 text-center">
         <div className="space-y-3">
           <div className="flex justify-center" aria-hidden>
             <FlagUA width={72} />
@@ -25,30 +25,45 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-4">
+          {/* одна домінанта на сторінці — велика CTA */}
           <Link
             href="/play"
-            className={buttonVariants({ variant: "primary", size: "lg" })}
+            className={`${buttonVariants({ variant: "primary", size: "lg" })} h-16 px-16 text-2xl font-bold`}
           >
+            <svg
+              className="-ml-4 mr-1"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <polygon points="7 4.5 19.5 12 7 19.5" />
+            </svg>
             Грати
           </Link>
           <BestScore />
-          <div className="flex gap-3">
+          {/* другорядні дії — навмисно легші за CTA */}
+          <div className="mt-4 flex flex-wrap justify-center gap-1">
             <Link
               href="/categories"
-              className={buttonVariants({ variant: "secondary" })}
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
             >
               🗂 Категорії
             </Link>
             <Link
               href="/daily"
-              className={buttonVariants({ variant: "secondary" })}
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
             >
               📅 Щоденний виклик
             </Link>
             <Link
               href="/stats"
-              className={buttonVariants({ variant: "secondary" })}
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
             >
               📊 Статистика
             </Link>
