@@ -111,6 +111,29 @@ scripts/        generate_ua_items.py + ua_categories.json + build-data.mjs
 public/data/    згенеровано build-data (у .gitignore)
 ```
 
+## Мультиплеєр (partyserver на Cloudflare)
+
+Кімнати — Durable Objects через [partyserver](https://github.com/cloudflare/partykit)
+(наступник PartyKit від Cloudflare): авторитарний сервер у `party/room.ts`,
+воркер-роутер — `party/worker.ts`, спільні типи — `lib/multiplayer.ts`,
+конфіг — `wrangler.jsonc`. Клієнт — `partysocket` (шлях `/parties/main/<код>`).
+
+Локально: `npm run party:dev` (порт 1999, змінні з `.dev.vars`) +
+`NEXT_PUBLIC_PARTYKIT_HOST="127.0.0.1:1999"` в `.env.local`.
+
+Деплой у свій Cloudflare-акаунт (разово: `npx wrangler login`):
+
+```bash
+npm run party:deploy:dev    # history-in-cards-dev.<акаунт>.workers.dev
+npm run party:deploy:prod   # history-in-cards.<акаунт>.workers.dev
+```
+
+Дев і прод — окремі воркери (env "production" у `wrangler.jsonc`), кожен зі
+своїм `SITE_URL` (звідти сервер тягне `/data/all.json`). На Vercel постав
+`NEXT_PUBLIC_PARTYKIT_HOST` (хостнейм воркера без протоколу): Production —
+прод-воркер, Preview/дев-гілка — дев-воркер. Це build-time змінна — після
+зміни потрібен редеплой сайту.
+
 ## Публічна статистика (`/stats`)
 
 Кожна завершена партія шле результат у `POST /api/stats` (режим, рахунок,

@@ -95,7 +95,7 @@ export function CardModal({ card, onClose, hideYear = false }: Props) {
           type="button"
           onClick={onClose}
           aria-label="Закрити"
-          className="absolute right-3 top-3 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+          className="absolute right-3 top-3 cursor-pointer rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
             <path d="M18 6 6 18M6 6l12 12" />

@@ -73,6 +73,12 @@ export default function Home() {
             >
               📚 Картотека
             </Link>
+            <Link
+              href="/room"
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+            >
+              👥 Мультиплеєр
+            </Link>
           </div>
         </div>
 

@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "history-in-cards",
+  "main": "party/worker.ts",
+  "compatibility_date": "2026-07-01",
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }],
+  // Деплой завжди з явним середовищем: -e dev або -e production
+  "env": {
+    "dev": {
+      "name": "history-in-cards-dev",
+      "vars": { "SITE_URL": "https://dev.history-in-cards.org.ua" },
+      "durable_objects": {
+        // назва Main => шлях /parties/main/<код> — дефолт partysocket
+        "bindings": [{ "name": "Main", "class_name": "Room" }]
+      }
+    },
+    "production": {
+      "name": "history-in-cards",
+      "vars": { "SITE_URL": "https://history-in-cards.org.ua" },
+      "durable_objects": {
+        "bindings": [{ "name": "Main", "class_name": "Room" }]
+      }
+    }
+  }
+}
