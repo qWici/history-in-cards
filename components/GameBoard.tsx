@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from "react";
 import { CardBack, GameCardView } from "@/components/GameCard";
 import { FlagUA } from "@/components/FlagUA";
 import { CardModal } from "@/components/CardModal";
+import { HowToPlayModal } from "@/components/HowToPlayModal";
 import { DailyResultView } from "@/components/DailyResult";
 import type { GameMode } from "@/lib/store";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -472,6 +473,15 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
     useGame();
   const [dragging, setDragging] = useState(false);
   const [returning, setReturning] = useState(false);
+  // онбординг: показуємо правила при найпершій грі
+  const [howToOpen, setHowToOpen] = useState(false);
+  useEffect(() => {
+    if (!localStorage.getItem("ua-trivia:onboarded")) setHowToOpen(true);
+  }, []);
+  function closeHowTo() {
+    localStorage.setItem("ua-trivia:onboarded", "1");
+    setHowToOpen(false);
+  }
   // Прев'ю активної картки (рік прихований); guard відсікає клік,
   // що прилітає одразу після завершення перетягування
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -578,6 +588,7 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
   return (
     <div className="flex min-h-dvh flex-col">
       <DebugPanel />
+      {howToOpen && <HowToPlayModal onClose={closeHowTo} />}
       <header className="flex items-center justify-between gap-3 px-4 py-3">
         <Link
           href="/"
@@ -586,6 +597,15 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
           ⬅️ Вийти
         </Link>
         <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            isIconOnly
+            size="sm"
+            aria-label="Як грати"
+            onClick={() => setHowToOpen(true)}
+          >
+            ?
+          </Button>
           {categoryName && (
             <Chip color="accent" className="max-w-56 truncate">
               {categoryName}

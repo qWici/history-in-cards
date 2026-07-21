@@ -1,15 +1,9 @@
-import { buttonVariants, Card } from "@heroui/react";
+import { buttonVariants } from "@heroui/react";
 import Link from "next/link";
 import { BestScore } from "@/components/BestScore";
 import { FlagUA } from "@/components/FlagUA";
 import { GithubBlock } from "@/components/GithubBlock";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-
-const STEPS = [
-  "Тобі показують картку події без року",
-  "Перетягни її на лінію часу туди, де їй місце",
-  "Три промахи — кінець гри",
-];
 
 export default function Home() {
   return (
@@ -61,18 +55,6 @@ export default function Home() {
           </div>
         </div>
 
-        <Card className="max-w-md text-left">
-          <Card.Header>
-            <Card.Title>Як грати</Card.Title>
-          </Card.Header>
-          <Card.Content>
-            <ol className="list-decimal space-y-1 pl-5 text-sm text-muted">
-              {STEPS.map((s) => (
-                <li key={s}>{s}</li>
-              ))}
-            </ol>
-          </Card.Content>
-        </Card>
       </main>
       <footer className="flex flex-col items-center gap-4 px-6 pb-8">
         <div className="space-y-1 text-center text-xs text-muted">
