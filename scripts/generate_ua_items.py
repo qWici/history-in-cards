@@ -456,6 +456,9 @@ NAME_OVERRIDES = {}
 # Точкові виправлення року qid -> рік (з config "year_overrides"):
 # коли і Wikidata, і інфобокс дають не те, що очікує гравець
 YEAR_OVERRIDES = {}
+# Точкові заміни зображення qid -> ім'я файлу Commons або повний URL
+# (наприклад, коли P18 — монета з датами, що підказує відповідь)
+IMAGE_OVERRIDES = {}
 
 _YEAR_FILM = re.compile(r"\(фільм,\s*\d{4}\)")
 _YEAR_PARENS = re.compile(
@@ -592,7 +595,7 @@ def run_category(cat, defaults, out_dir):
                 (year_range[0] is None or year >= year_range[0]) and
                 (year_range[1] is None or year < year_range[1])):
             continue
-        image = ent["image"] or _summary(ent["ukwiki"])["image"]
+        image = IMAGE_OVERRIDES.get(qid) or ent["image"] or _summary(ent["ukwiki"])["image"]
         if require_image and not image:
             report["dropped"].append({"qid": qid, "name": ent["label"],
                                       "reason": "no image (P18/summary)"})
@@ -654,6 +657,7 @@ def main():
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
     NAME_OVERRIDES.update(config.get("name_overrides", {}))
     YEAR_OVERRIDES.update(config.get("year_overrides", {}))
+    IMAGE_OVERRIDES.update(config.get("image_overrides", {}))
     defaults = config["defaults"]
     cats = config["categories"]
 
