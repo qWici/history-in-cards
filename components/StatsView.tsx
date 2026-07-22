@@ -1,11 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { DIFFICULTIES } from "@/lib/difficulty";
 
 interface Stats {
   games: Record<string, number>;
-  hist: Record<"classic" | "category" | "daily", Record<string, number>>;
+  /** classic / classic:easy / classic:hard / classic:historian / category / daily */
+  hist: Record<string, Record<string, number>>;
   moves: Record<string, number>;
+}
+
+/** Гістограма рівня складності: «звичайний» — легасі-ключ hist.classic. */
+function classicHistKey(id: string): string {
+  return id === "normal" ? "classic" : `classic:${id}`;
 }
 
 /** Гістограма розподілу рахунків: одна серія — акцентний колір системи. */
@@ -30,7 +37,8 @@ function Histogram({
 
   return (
     <div>
-      <div className="flex h-40 items-end gap-[2px]">
+      {/* верхній відступ під підпис піку (-top-5 над стовпчиком на всю висоту) */}
+      <div className="mt-6 flex h-40 items-end gap-[2px]">
         {counts.map((count, score) => (
           <div
             key={score}
@@ -67,7 +75,7 @@ function Histogram({
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col items-center gap-1 rounded-2xl bg-background-secondary px-6 py-4">
+    <div className="flex flex-col items-center justify-center gap-1 rounded-2xl bg-background-secondary px-6 py-4 text-center">
       <span className="text-3xl font-extrabold tabular-nums">{value}</span>
       <span className="text-xs font-medium uppercase tracking-wide text-muted">
         {label}
@@ -101,11 +109,18 @@ export function StatsView() {
 
   const totalGames = Object.values(stats.games).reduce((a, b) => a + Number(b), 0);
   const merged: Record<string, number> = {};
-  for (const hist of [stats.hist.classic, stats.hist.category]) {
+  for (const hist of [
+    ...DIFFICULTIES.map((o) => stats.hist[classicHistKey(o.id)]),
+    stats.hist.category,
+  ]) {
     for (const [score, count] of Object.entries(hist ?? {})) {
       merged[score] = (merged[score] ?? 0) + Number(count);
     }
   }
+  // рівні з хоч однією зіграною партією — для розбивки за складністю
+  const playedLevels = DIFFICULTIES.filter((o) =>
+    Object.keys(stats.hist[classicHistKey(o.id)] ?? {}).length > 0,
+  );
   const best = Object.keys(merged).length
     ? Math.max(...Object.keys(merged).map(Number))
     : 0;
@@ -115,7 +130,7 @@ export function StatsView() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile label="Зіграно ігор" value={String(totalGames)} />
         <StatTile label="Найбільший рахунок" value={String(best)} />
         <StatTile label="Точність ходів" value={`${accuracy}%`} />
@@ -128,6 +143,36 @@ export function StatsView() {
         </h2>
         <Histogram data={merged} />
       </section>
+
+      {playedLevels.length > 0 && (
+        <section>
+          <h2 className="mb-1 text-lg font-bold">Класика за складністю</h2>
+          <p className="mb-4 text-xs text-muted">
+            Партії, зіграні до появи рівнів, враховано у «Звичайному» — вони
+            гралися саме цією колодою.
+          </p>
+          <div className="flex flex-col gap-6">
+            {playedLevels.map((o) => {
+              const hist = stats.hist[classicHistKey(o.id)] ?? {};
+              const count = Object.values(hist).reduce(
+                (a, b) => a + Number(b),
+                0,
+              );
+              return (
+                <div key={o.id}>
+                  <h3 className="mb-2 text-sm font-semibold">
+                    {o.icon} {o.label}{" "}
+                    <span className="font-normal text-muted">
+                      — {count} {count === 1 ? "гра" : "ігор"}
+                    </span>
+                  </h3>
+                  <Histogram data={hist} />
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <section>
         <h2 className="mb-3 text-lg font-bold">Щоденний виклик — з 12 карток</h2>

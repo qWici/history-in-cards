@@ -1,6 +1,5 @@
 import { buttonVariants } from "@heroui/react";
 import Link from "next/link";
-import { BestScore } from "@/components/BestScore";
 import { FlagUA } from "@/components/FlagUA";
 import { GithubBlock } from "@/components/GithubBlock";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -46,7 +45,6 @@ export default function Home() {
             </svg>
             Грати
           </Link>
-          <BestScore />
           {/* другорядні дії — навмисно легші за CTA */}
           <div className="mt-4 flex flex-wrap justify-center gap-1">
             <Link

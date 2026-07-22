@@ -11,9 +11,12 @@ import { HowToPlayModal } from "@/components/HowToPlayModal";
 import { DailyResultView } from "@/components/DailyResult";
 import type { GameMode } from "@/lib/store";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { DifficultySelect } from "@/components/DifficultySelect";
+import { DIFFICULTIES, difficultyMeta } from "@/lib/difficulty";
+import type { Difficulty } from "@/lib/game";
 import { correctIndex, formatYear, imageUrl, isValidPlacement } from "@/lib/game";
 import { shareOrCopy } from "@/lib/share";
-import { LIVES, useGame } from "@/lib/store";
+import { bestKey, LIVES, useGame } from "@/lib/store";
 
 /** Дебаг-панель для розробки: NEXT_PUBLIC_DEBUG=true. У проді відсутня. */
 function DebugPanel() {
@@ -61,7 +64,12 @@ function DebugPanel() {
         type="button"
         className={btn}
         onClick={() => {
-          for (const k of ["ua-trivia:best", "ua-trivia:seen", "ua-trivia:daily", "ua-trivia:reported"])
+          for (const k of [
+            ...DIFFICULTIES.map((o) => bestKey(o.id)),
+            "ua-trivia:seen",
+            "ua-trivia:daily",
+            "ua-trivia:reported",
+          ])
             localStorage.removeItem(k);
           location.reload();
         }}
@@ -93,17 +101,22 @@ function Lives({ lives }: { lives: number }) {
 }
 
 function GameOver() {
-  const { score, best, timeline, start, moves } = useGame();
+  const { score, best, timeline, start, moves, difficulty, categoryGame } =
+    useGame();
   const [selected, setSelected] = useState<(typeof timeline)[number] | null>(null);
   const [copied, setCopied] = useState(false);
   const isRecord = score > 0 && score >= best;
 
   async function share() {
+    const level = difficultyMeta(difficulty);
     const text = [
       "Історія в картках 🇺🇦",
       isRecord
         ? `Рахунок: ${score} · 🏆 новий рекорд!`
         : `Рахунок: ${score} (рекорд: ${best})`,
+      ...(difficulty !== "normal"
+        ? [`Складність: ${level.icon} ${level.label}`]
+        : []),
       moves.map((m) => (m.correct ? "🟩" : "🟥")).join(""),
       window.location.origin,
     ].join("\n");
@@ -116,6 +129,11 @@ function GameOver() {
   return (
     <div className="flex flex-1 flex-col items-center gap-6 p-6">
       <h2 className="text-3xl font-bold">Гру завершено</h2>
+      {!categoryGame && (
+        <span className="-mt-3 rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold text-accent-soft-foreground">
+          {difficultyMeta(difficulty).icon} {difficultyMeta(difficulty).label}
+        </span>
+      )}
       <div className="flex items-center gap-2">
         <span className="flex items-center gap-2 rounded-full bg-accent-soft px-4 py-1.5 text-accent-soft-foreground shadow-sm">
           <span className="text-xs font-medium uppercase tracking-wide opacity-80">
@@ -143,7 +161,7 @@ function GameOver() {
         </span>
       </div>
       <div className="flex flex-wrap justify-center gap-3">
-        <Button variant="primary" onClick={() => start()}>
+        <Button variant="primary" onClick={() => start({ difficulty })}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M21 12a9 9 0 1 1-2.64-6.36" />
             <path d="M21 3v6h-6" />
@@ -211,6 +229,7 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
     totalToPlace,
     timeline,
     lastMove,
+    difficulty,
   } = useGame();
   // онбординг: показуємо правила при найпершій грі
   const [howToOpen, setHowToOpen] = useState(false);
@@ -224,10 +243,22 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
 
   // Кожен захід на сторінку гри — нова партія (стор глобальний і переживає
   // навігацію, інакше після «Вийти» тут висів би стан попередньої гри)
+  // Складність обирається на окремому екрані перед стартом — лише для
+  // класики: категорійні пули для смуг замалі, а щоденна колода мусить
+  // бути однакова для всіх
   const slugsKey = slugs?.join(",") ?? "";
+  const needsDifficulty = mode === "classic" && !slugsKey;
+  const [chosenDifficulty, setChosenDifficulty] = useState<Difficulty | null>(
+    null,
+  );
   useEffect(() => {
-    void start({ mode, slugs: slugsKey ? slugsKey.split(",") : null });
-  }, [start, mode, slugsKey]);
+    if (needsDifficulty && !chosenDifficulty) return; // чекаємо на вибір
+    void start({
+      mode,
+      slugs: slugsKey ? slugsKey.split(",") : null,
+      difficulty: chosenDifficulty ?? "normal",
+    });
+  }, [start, mode, slugsKey, needsDifficulty, chosenDifficulty]);
 
   // Промах: пауза, щоб гравець побачив картку там, де поклав (червона,
   // з роком), і лише потім вона переїжджає на правильне місце
@@ -261,6 +292,23 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
       if (card.image) new window.Image().src = imageUrl(card.image);
     }
   }, [deck]);
+
+  if (needsDifficulty && !chosenDifficulty) {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <header className="flex items-center justify-between gap-3 px-4 py-3">
+          <Link
+            href="/"
+            className={buttonVariants({ variant: "ghost", size: "sm" })}
+          >
+            ⬅️ Вийти
+          </Link>
+          <ThemeSwitcher />
+        </header>
+        <DifficultySelect onPick={setChosenDifficulty} />
+      </div>
+    );
+  }
 
   if (status === "loading" || status === "idle") {
     return (
@@ -326,6 +374,11 @@ export function GameBoard({ mode = "classic", slugs, categoryName }: GameBoardPr
           {categoryName && (
             <Chip color="accent" className="max-w-56 truncate">
               {categoryName}
+            </Chip>
+          )}
+          {difficulty !== "normal" && (
+            <Chip color="accent">
+              {difficultyMeta(difficulty).icon} {difficultyMeta(difficulty).label}
             </Chip>
           )}
           <ThemeSwitcher />

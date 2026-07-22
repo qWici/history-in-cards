@@ -1,3 +1,4 @@
+import type { Difficulty } from "./game";
 import type { GameCard, PlacedCard } from "./types";
 
 /** Активна картка, як її бачать клієнти: БЕЗ року і будь-яких підказок
@@ -41,6 +42,8 @@ export interface RoomSnapshot {
   lastMove: { qid: string; correct: boolean; title: string; year: number } | null;
   deckLeft: number;
   standings: Standing[] | null;
+  /** Складність кімнати: обирає хост у лобі, діє на всю партію. */
+  difficulty: Difficulty;
 }
 
 export type ClientMessage =
@@ -48,6 +51,7 @@ export type ClientMessage =
   | { type: "rename"; nick: string }
   | { type: "start" }
   | { type: "restart" }
+  | { type: "difficulty"; difficulty: Difficulty }
   | { type: "place"; index: number; qid: string };
 
 export type ServerMessage =

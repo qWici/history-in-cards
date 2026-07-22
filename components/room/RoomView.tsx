@@ -7,6 +7,8 @@ import usePartySocket from "partysocket/react";
 import { BoardCore, BoardProvider } from "@/components/board/BoardCore";
 import { FlagUA } from "@/components/FlagUA";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { DIFFICULTIES, difficultyMeta } from "@/lib/difficulty";
+import type { Difficulty } from "@/lib/game";
 import { shareOrCopy } from "@/lib/share";
 import {
   ROOM_LIMITS,
@@ -182,18 +184,71 @@ function TurnTimer({ endsAt }: { endsAt: number | null }) {
   );
 }
 
+/** Складність кімнати: хост обирає, решта бачить поточний рівень. */
+function DifficultyRow({
+  value,
+  isHost,
+  onChange,
+}: {
+  value: Difficulty;
+  isHost: boolean;
+  onChange: (d: Difficulty) => void;
+}) {
+  const selected = difficultyMeta(value);
+  return (
+    <div className="flex w-full flex-col items-center gap-2">
+      <p className="text-sm font-semibold text-muted">Складність</p>
+      {isHost ? (
+        <div
+          className="flex flex-wrap justify-center gap-1.5"
+          role="radiogroup"
+          aria-label="Складність"
+        >
+          {DIFFICULTIES.map((o) => {
+            const active = o.id === value;
+            return (
+              <button
+                key={o.id}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                title={o.hint}
+                onClick={() => onChange(o.id)}
+                className={`cursor-pointer rounded-full border px-3 py-1 text-sm font-semibold transition-colors ${
+                  active
+                    ? "border-accent bg-accent-soft text-accent-soft-foreground"
+                    : "border-border text-muted hover:text-foreground"
+                }`}
+              >
+                {o.icon} {o.label}
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <span className="rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold text-accent-soft-foreground">
+          {selected.icon} {selected.label}
+        </span>
+      )}
+      <p className="text-xs text-muted">{selected.hint}</p>
+    </div>
+  );
+}
+
 function Lobby({
   snapshot,
   code,
   myId,
   onStart,
   onRename,
+  onDifficulty,
 }: {
   snapshot: RoomSnapshot;
   code: string;
   myId: string;
   onStart: () => void;
   onRename: (nick: string) => void;
+  onDifficulty: (d: Difficulty) => void;
 }) {
   const [copied, setCopied] = useState(false);
   const [editingNick, setEditingNick] = useState(false);
@@ -242,6 +297,12 @@ function Lobby({
           ),
         )}
       </div>
+
+      <DifficultyRow
+        value={snapshot.difficulty}
+        isHost={isHost}
+        onChange={onDifficulty}
+      />
 
       <div className="flex flex-col items-center gap-2">
         {isHost ? (
@@ -440,6 +501,12 @@ export function RoomView({ code }: { code: string }) {
           ⬅️ Вийти
         </Link>
         <div className="flex items-center gap-3">
+          {snapshot && snapshot.phase !== "lobby" && (
+            <Chip color="accent">
+              {difficultyMeta(snapshot.difficulty).icon}{" "}
+              {difficultyMeta(snapshot.difficulty).label}
+            </Chip>
+          )}
           <Chip color="accent">Кімната {code.toUpperCase()}</Chip>
           <ThemeSwitcher />
         </div>
@@ -462,6 +529,9 @@ export function RoomView({ code }: { code: string }) {
           myId={myId}
           onStart={() => socket.send(JSON.stringify({ type: "start" }))}
           onRename={(n) => socket.send(JSON.stringify({ type: "rename", nick: n }))}
+          onDifficulty={(d) =>
+            socket.send(JSON.stringify({ type: "difficulty", difficulty: d }))
+          }
         />
       ) : snapshot.phase === "finished" ? (
         <Podium
