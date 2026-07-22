@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { GameCard, PlacedCard } from "./types";
-import { buildDailyDeck, buildDeck, correctIndex, isValidPlacement, kyivToday } from "./game";
+import { buildDailyDeck, buildDeck, correctIndex, isValidPlacement, kyivToday, type Difficulty } from "./game";
 import { saveDailyResult } from "./daily";
 import { reportGameResult } from "./statsClient";
 
@@ -30,6 +30,12 @@ export interface StartConfig {
   mode?: GameMode;
   /** Обмежити пул категоріями (slug'и) — режим «гра за категорією». */
   slugs?: string[] | null;
+  difficulty?: Difficulty;
+}
+
+/** Рекорд окремий на кожен рівень; звичайний — легасі-ключ без суфікса. */
+export function bestKey(difficulty: Difficulty): string {
+  return difficulty === "normal" ? BEST_KEY : `${BEST_KEY}:${difficulty}`;
 }
 
 interface Move {
@@ -59,6 +65,7 @@ interface GameState {
   relocating: string | null;
   /** Гра обмежена категоріями (для статистики: classic vs category). */
   categoryGame: boolean;
+  difficulty: Difficulty;
   start: (config?: StartConfig) => Promise<void>;
   /** Гравець кладе поточну картку в слот index (перед timeline[index]). */
   place: (index: number) => void;
@@ -90,10 +97,17 @@ export const useGame = create<GameState>((set, get) => ({
   lastMove: null,
   relocating: null,
   categoryGame: false,
+  difficulty: "normal",
 
   start: async (config = {}) => {
     const mode = config.mode ?? "classic";
-    set({ status: "loading", mode, categoryGame: !!config.slugs?.length });
+    const difficulty = config.difficulty ?? "normal";
+    set({
+      status: "loading",
+      mode,
+      categoryGame: !!config.slugs?.length,
+      difficulty,
+    });
     let pool = await loadPool();
     if (config.slugs?.length) {
       const wanted = new Set(config.slugs);
@@ -102,7 +116,7 @@ export const useGame = create<GameState>((set, get) => ({
     const deck =
       mode === "daily"
         ? buildDailyDeck(pool, kyivToday()) // однакова для всіх — без seen
-        : buildDeck(pool, 200, new Set(readSeen()));
+        : buildDeck(pool, 200, new Set(readSeen()), difficulty);
     const [first, second, ...rest] = deck;
     markSeen([first.qid, second.qid]);
     set({
@@ -117,7 +131,7 @@ export const useGame = create<GameState>((set, get) => ({
       totalToPlace: deck.length - 1,
       lastMove: null,
       relocating: null,
-      best: Number(localStorage.getItem(BEST_KEY) ?? 0),
+      best: Number(localStorage.getItem(bestKey(difficulty)) ?? 0),
     });
   },
 
@@ -162,7 +176,8 @@ export const useGame = create<GameState>((set, get) => ({
     let nextBest = best;
     if (mode === "classic") {
       nextBest = Math.max(best, nextScore);
-      if (nextBest > best) localStorage.setItem(BEST_KEY, String(nextBest));
+      if (nextBest > best)
+        localStorage.setItem(bestKey(get().difficulty), String(nextBest));
     }
     if (over && mode === "daily") {
       saveDailyResult(
@@ -177,6 +192,7 @@ export const useGame = create<GameState>((set, get) => ({
         nextScore,
         nextMoves.filter((m) => m.correct).length,
         nextMoves.filter((m) => !m.correct).length,
+        get().difficulty,
       );
     }
 
@@ -218,6 +234,7 @@ export const useGame = create<GameState>((set, get) => ({
         score,
         moves.filter((m) => m.correct).length,
         moves.filter((m) => !m.correct).length,
+        get().difficulty,
       );
     }
 

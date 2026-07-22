@@ -18,7 +18,7 @@ export default function StatsPage() {
         </Link>
         <ThemeSwitcher />
       </header>
-      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 pb-10">
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 pb-10">
         <h1 className="text-center text-3xl font-bold">📊 Статистика гри</h1>
         <StatsView />
       </main>

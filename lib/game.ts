@@ -44,10 +44,21 @@ function shuffle<T>(arr: T[]): T[] {
  * `seen` — нещодавно бачені картки: відсуваються в хвіст свого кошика,
  * щоб між партіями спершу приходило свіже.
  */
+export type Difficulty = "easy" | "normal" | "hard" | "historian";
+
+/** Смуга пулу за відомістю (частки від найвідомішої до найрідшої). */
+export const DIFFICULTY_BANDS: Record<Difficulty, [number, number]> = {
+  easy: [0, 0.3], // лише найвідоміші
+  normal: [0, 1], // повна крива складності
+  hard: [0.2, 1], // без найвідоміших
+  historian: [0.45, 1], // глибока периферія
+};
+
 export function buildDeck(
   pool: GameCard[],
   size = 200,
   seen?: Set<string>,
+  difficulty: Difficulty = "normal",
 ): GameCard[] {
   const PER_LEVEL = 8;
   const byQid = new Map<string, GameCard[]>();
@@ -58,7 +69,12 @@ export function buildDeck(
   const unique = [...byQid.values()].map(
     (variants) => variants[Math.floor(Math.random() * variants.length)],
   );
-  const sorted = [...unique].sort((a, b) => b.pageViews - a.pageViews);
+  let sorted = [...unique].sort((a, b) => b.pageViews - a.pageViews);
+  const [lo, hi] = DIFFICULTY_BANDS[difficulty];
+  sorted = sorted.slice(
+    Math.floor(sorted.length * lo),
+    Math.ceil(sorted.length * hi),
+  );
   const bucketSize = Math.ceil(sorted.length / 5);
   const buckets: GameCard[][] = Array.from({ length: 5 }, (_, i) =>
     shuffle(sorted.slice(i * bucketSize, (i + 1) * bucketSize)),

@@ -1,0 +1,31 @@
+# Локальний Redis для статистики та скарг (/api/stats, /api/report).
+#
+# Код використовує @upstash/redis (REST, не Redis-протокол), тому поруч зі
+# звичайним Redis піднімається SRH — Upstash-сумісний REST-проксі.
+#
+#   docker compose -f docker-compose.dev.yml up -d
+#
+# У .env.local:
+#   KV_REST_API_URL="http://127.0.0.1:8079"
+#   KV_REST_API_TOKEN="local-token"
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  srh:
+    image: hiett/serverless-redis-http:latest
+    ports:
+      - "8079:80"
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: local-token
+      SRH_CONNECTION_STRING: "redis://redis:6379"
+    depends_on:
+      - redis
+
+volumes:
+  redis-data:
