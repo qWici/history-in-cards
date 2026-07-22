@@ -20,6 +20,14 @@ body {
   color: var(--color-foreground);
 }
 
+/* HeroUI під @supports перевизначає фон у lab(): на майже чорному Chromium
+   квантує lab() по-різному в сусідніх GPU-тайлах (особливо при зумі ≠100%) —
+   видно горизонтальні смуги #070709/#0a0a0b. Прибиваємо фон до sRGB-hex. */
+.dark,
+[data-theme="dark"] {
+  --background: #060607;
+}
+
 /* Плавний політ картки на місце при помилці */
 .card-slide-in {
   animation: card-slide-in 0.45s ease;
