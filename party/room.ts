@@ -8,7 +8,13 @@ import {
   type RoomSnapshot,
   type Standing,
 } from "../lib/multiplayer";
-import { buildDeck, correctIndex, isValidPlacement } from "../lib/game";
+import {
+  buildDeck,
+  correctIndex,
+  DIFFICULTY_BANDS,
+  isValidPlacement,
+  type Difficulty,
+} from "../lib/game";
 import type { GameCard, PlacedCard } from "../lib/types";
 
 export interface Env {
@@ -37,6 +43,7 @@ export class Room extends Server<Env> {
   lastMove: RoomSnapshot["lastMove"] = null;
   standings: Standing[] | null = null;
   eliminatedCount = 0;
+  difficulty: Difficulty = "normal";
 
   turnTimer: ReturnType<typeof setTimeout> | null = null;
   relocationTimer: ReturnType<typeof setTimeout> | null = null;
@@ -84,6 +91,8 @@ export class Room extends Server<Env> {
         return void this.handleStart(conn);
       case "restart":
         return this.handleRestart(conn);
+      case "difficulty":
+        return this.handleDifficulty(conn, msg.difficulty);
       case "place":
         return this.handlePlace(conn, msg.index, msg.qid);
     }
@@ -132,6 +141,16 @@ export class Room extends Server<Env> {
     this.sync();
   }
 
+  handleDifficulty(conn: Connection, difficulty: Difficulty) {
+    if (this.phase !== "lobby") return; // під час гри рівень не міняється
+    if (conn.state !== this.hostId) {
+      return this.error(conn, "Складність обирає лише хост");
+    }
+    if (!(difficulty in DIFFICULTY_BANDS)) return;
+    this.difficulty = difficulty;
+    this.sync();
+  }
+
   async handleStart(conn: Connection) {
     if (this.phase !== "lobby") return;
     if (conn.state !== this.hostId) {
@@ -146,7 +165,7 @@ export class Room extends Server<Env> {
       const res = await fetch(`${site}/data/all.json`);
       if (!res.ok) throw new Error(String(res.status));
       const pool = (await res.json()) as GameCard[];
-      this.deck = buildDeck(pool, 200);
+      this.deck = buildDeck(pool, 200, undefined, this.difficulty);
     } catch {
       return this.error(conn, "Не вдалося завантажити картки, спробуй ще раз");
     }
@@ -337,6 +356,7 @@ export class Room extends Server<Env> {
       lastMove: this.lastMove,
       deckLeft: this.deck.length,
       standings: this.standings,
+      difficulty: this.difficulty,
     };
   }
 
