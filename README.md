@@ -111,6 +111,20 @@ scripts/        generate_ua_items.py + ua_categories.json + build-data.mjs
 public/data/    згенеровано build-data (у .gitignore)
 ```
 
+## PWA та офлайн
+
+Гру можна встановити на телефон («Додати на головний екран») і грати офлайн.
+Маніфест — `app/manifest.ts` (Next віддає `/manifest.webmanifest`), іконки —
+`public/icon-*.png`, service worker — `public/sw.js` (реєструється лише в
+проді компонентом `ServiceWorkerRegister`).
+
+Стратегії кешу: хешовані чанки — назавжди; `/data/` — кеш одразу, оновлення
+у фоні; зображення Вікімедії — cache-first з лімітом ~300; сторінки —
+network-first із фолбеком на кеш. Кеш наповнюється в міру гри: зіграв
+онлайн — можеш грати офлайн (картинки будуть у вже бачених карток).
+Мультиплеєр і статистика офлайн не працюють. При зміні логіки `sw.js`
+бампни `VERSION` усередині файлу.
+
 ## Мультиплеєр (partyserver на Cloudflare)
 
 Кімнати — Durable Objects через [partyserver](https://github.com/cloudflare/partykit)
