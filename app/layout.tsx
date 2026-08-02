@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -28,6 +29,12 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
   },
+  // PWA: як застосунок поводиться після «Додати на головний екран» на iOS
+  appleWebApp: {
+    capable: true,
+    title: "Історія в картках",
+    statusBarStyle: "black-translucent",
+  },
   other: {
     // сайт має власну темну тему — просимо розширення Dark Reader не чіпати
     // сторінку (воно інжектить атрибути в SVG і ламає гідратацію React)
@@ -36,7 +43,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#111111",
+  themeColor: "#060607",
 };
 
 export default function RootLayout({
@@ -52,6 +59,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-[family-name:var(--font-inter)]">
         <Providers>{children}</Providers>
+        <ServiceWorkerRegister />
         <Analytics />
       </body>
     </html>
